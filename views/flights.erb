@@ -1,0 +1,31 @@
+<h1>Flights</h1>
+
+<a href="/flights/new">New Flight</a>
+
+<a href="/flights/add-southwest-flights">Add Southwest Flights</a>
+
+<table>
+  <tr>
+    <% FLIGHT_ATTRIBUTES.each do |attribute| %>
+      <th><%= attribute %></th>
+    <% end %>
+  </tr>
+  <% @flights.each do |flight| %>
+    <tr>
+      <td><%= flight[:airline] %></td>
+      <td><%= flight[:number] %></td>
+      <td><%= flight[:origin] %></td>
+      <td><%= flight[:destination] %></td>
+      <td><%= format_time flight[:departure_time] %></td>
+      <td><%= format_time flight[:arrival_time] %></td>
+      <td><%= flight[:routing] %></td>
+      <td><%= flight[:travel_time] %></td>
+      <td><%= flight[:price] %></td>
+      <td><a href="/flights/<%= flight[:id] %>">View</a></td>
+    </tr>
+  <% end %>
+</table>
+
+<form action="/flights/delete_all" method="post" class="delete">
+  <button type="submit">Delete All Flights</button>
+</form>

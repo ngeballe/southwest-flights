@@ -1,0 +1,43 @@
+<h1>Edit Flight</h1>
+
+<form action="/flights/<%= @flight[:id] %>" method="post">
+  <div>
+    <label for="airline">Airline</label>
+    <input type="text" name="airline" value="<%= params[:airline] || @flight[:airline] %>">
+  </div>
+  <div>
+    <label for="number">Number</label>
+    <input type="text" name="number" value="<%= params[:number] || @flight[:number] %>">
+  </div>
+  <div>
+    <label for="origin">Origin</label>
+    <input type="text" name="origin" value="<%= params[:orgin] || @flight[:origin] %>">
+  </div>
+  <div>
+    <label for="destination">Destination</label>
+    <input type="text" name="destination" value="<%= params[:destination] || @flight[:destination] %>">
+  </div>
+  <div>
+    <label for="departure_time">Departure Time</label>
+    <input type="time" name="departure_time" value="<%= params[:departure_time] || military_time(@flight[:departure_time]) %>">
+  </div>
+  <div>
+    <label for="arrival_time">Arrival Time</label>
+    <input type="time" name="arrival_time" value="<%= params[:arrival_time] || military_time(@flight[:arrival_time]) %>">
+  </div>
+  <div>
+    <label for="routing">Routing</label>
+    <input type="text" name="routing" value="<%= params[:routing] || @flight[:routing] %>">
+  </div>
+  <div>
+    <label for="travel_time">Travel Time</label>
+    <input type="text" name="travel_time" value="<%= params[:travel_time] || @flight[:travel_time] %>">
+  </div>
+  <div>
+    <label for="price">Price</label>
+    <input type="text" name="price" value="<%= params[:price] || @flight[:price] %>">
+  </div>
+  <div>
+    <button type="submit">Save</button>
+  </div>
+</form>

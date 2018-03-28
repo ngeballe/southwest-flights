@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+div.flash {
+  padding: 1em;
+}
+
+div.flash.success {
+  background-color: #AFA;
+}
+
+div.flash.error {
+  background-color: #FAA;
+}
+
+textarea {
+  width: 40em;
+  height: 10em;
+  font-size: 1em;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #AAA;
+  padding: 0.5em;
+  text-align: center;
+}

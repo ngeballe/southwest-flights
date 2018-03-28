@@ -1,0 +1,47 @@
+<h1>New Flight</h1>
+
+<form action="/flights" method="post">
+  <div>
+    <label for="southwest_flight">Southwest Flight</label>
+    <textarea name="southwest_flight" id="southwest_flight"><%= params[:southwest_flight] %></textarea>
+  </div>
+  <div>
+    <label for="airline">Airline</label>
+    <input type="text" name="airline" value="<%= params[:airline] %>" id="airline">
+  </div>
+  <div>
+    <label for="number">Number</label>
+    <input type="text" name="number" value="<%= params[:number] %>" id="number">
+  </div>
+  <div>
+    <label for="origin">From</label>
+    <input type="text" name="origin" value="<%= params[:origin] %>" id="origin">
+  </div>
+  <div>
+    <label for="destination">To</label>
+    <input type="text" name="destination" value="<%= params[:destination] %>" id="destination">
+  </div>
+  <div>
+    <label for="departure_time">Departure Time</label>
+    <input type="time" name="departure_time" value="<%= params[:departure_time] %>" id="departure_time">
+  </div>
+  <div>
+    <label for="arrival_time">Arrival Time</label>
+    <input type="time" name="arrival_time" value="<%= params[:arrival_time] %>" id="arrival_time">
+  </div>
+  <div>
+    <label for="routing">Routing</label>
+    <input type="text" name="routing" value="<%= params[:routing] %>" id="routing">
+  </div>
+  <div>
+    <label for="travel_time">Travel Time</label>
+    <input type="text" name="travel_time" value="<%= params[:travel_time] %>" placeholder="##h ##m" id="travel_time">
+  </div>
+  <div>
+    <label for="price">Price</label>
+    <input type="text" name="price" id="price" value="<%= params[:price] %>">
+  </div>
+  <div>
+    <button type="submit">Save</button>
+  </div>
+</form>

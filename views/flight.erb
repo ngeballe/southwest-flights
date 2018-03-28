@@ -1,0 +1,44 @@
+<table>
+  <tr>
+    <th>Airline</th>
+    <td><%= @flight[:airline] %></td>
+  </tr>
+  <tr>
+    <th>Flight Number</th>
+    <td><%= @flight[:number] %></td>
+  </tr>
+  <tr>
+    <th>Origin</th>
+    <td><%= @flight[:origin] %></td>
+  </tr>
+  <tr>
+    <th>Destination</th>
+    <td><%= @flight[:destination] %></td>
+  </tr>
+  <tr>
+    <th>Departure Time</th>
+    <td><%= format_time @flight[:departure_time] %></td>
+  </tr>
+  <tr>
+    <th>Arrival Time</th>
+    <td><%= format_time @flight[:arrival_time] %></td>
+  </tr>
+  <tr>
+    <th>Routing</th>
+    <td><%= @flight[:routing] %></td>
+  </tr>
+  <tr>
+    <th>Travel Time</th>
+    <td><%= @flight[:travel_time] %></td>
+  </tr>
+  <tr>
+    <th>Price</th>
+    <td><%= @flight[:price] %></td>
+  </tr>
+</table>
+
+<a href="/flights/<%= @flight[:id] %>/edit">Edit</a>
+
+<form class="delete" action="/flights/<%= @flight[:id] %>/delete" method="post">
+  <button type="submit">Delete</button>
+</form>

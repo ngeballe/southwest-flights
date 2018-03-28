@@ -1,0 +1,442 @@
+---
+:flights:
+- :id: 1
+  :airline: Southwest
+  :number: 5747, 1008
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 06:00:00.000000000 -04:00
+  :arrival_time: 2018-03-28 11:05:00.000000000 -04:00
+  :routing: 1 stop, Change Planes MDW
+  :travel_time: 8h 05m
+  :price: "$258"
+- :id: 2
+  :airline: Southwest
+  :number: 257, 2110
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 06:35:00.000000000 -04:00
+  :arrival_time: 2018-03-28 10:45:00.000000000 -04:00
+  :routing: 1 stop, Change Planes BNA
+  :travel_time: 7h 10m
+  :price: "$365"
+- :id: 3
+  :airline: Southwest
+  :number: '1272'
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 07:20:00.000000000 -04:00
+  :arrival_time: 2018-03-28 13:20:00.000000000 -04:00
+  :routing: 2 stops, No Plane Change
+  :travel_time: 9h 00m
+  :price: "$325"
+- :id: 4
+  :airline: Southwest
+  :number: '1969'
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 11:40:00.000000000 -04:00
+  :arrival_time: 2018-03-28 16:00:00.000000000 -04:00
+  :routing: 1 stop, No Plane Change
+  :travel_time: 7h 20m
+  :price: "$361"
+- :id: 5
+  :airline: Southwest
+  :number: 5727, 1341
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 11:55:00.000000000 -04:00
+  :arrival_time: 2018-03-28 17:45:00.000000000 -04:00
+  :routing: 1 stop, Change Planes MDW
+  :travel_time: 8h 50m
+  :price: "$596"
+- :id: 6
+  :airline: Southwest
+  :number: 785, 5475
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 12:40:00.000000000 -04:00
+  :arrival_time: 2018-03-28 19:00:00.000000000 -04:00
+  :routing: 1 stop, Change Planes CMH
+  :travel_time: 9h 20m
+  :price: "$187"
+- :id: 7
+  :airline: Southwest
+  :number: 1304, 1380
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 12:40:00.000000000 -04:00
+  :arrival_time: 2018-03-28 19:00:00.000000000 -04:00
+  :routing: 1 stop, Change Planes MSY
+  :travel_time: 9h 20m
+  :price: "$325"
+- :id: 8
+  :airline: Southwest
+  :number: 1102, 1978
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 12:55:00.000000000 -04:00
+  :arrival_time: 2018-03-28 19:15:00.000000000 -04:00
+  :routing: 1 stop, Change Planes HOU
+  :travel_time: 9h 20m
+  :price: "$392"
+- :id: 9
+  :airline: Southwest
+  :number: 182, 46
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 16:00:00.000000000 -04:00
+  :arrival_time: 2018-03-28 21:05:00.000000000 -04:00
+  :routing: 1 stop, Change Planes DAL
+  :travel_time: 8h 05m
+  :price: "$258"
+- :id: 10
+  :airline: Southwest
+  :number: 678, 158
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 16:15:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:40:00.000000000 -04:00
+  :routing: 2 stops, Change Planes LAS
+  :travel_time: 9h 25m
+  :price: "$600"
+- :id: 11
+  :airline: Southwest
+  :number: '274'
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 17:20:00.000000000 -04:00
+  :arrival_time: 2018-03-28 00:15:00.000000000 -04:00
+  :routing: 2 stops, No Plane Change
+  :travel_time: 9h 55m
+  :price: "$596"
+- :id: 12
+  :airline: Southwest
+  :number: 1672, 329
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 17:45:00.000000000 -04:00
+  :arrival_time: 2018-03-28 23:05:00.000000000 -04:00
+  :routing: 1 stop, Change Planes MDW
+  :travel_time: 8h 20m
+  :price: "$392"
+- :id: 13
+  :airline: Southwest
+  :number: 5513, 251
+  :origin: Washington (Reagan National), DC
+  :destination: "Oakland, CA\r"
+  :departure_time: 2018-03-28 18:25:00.000000000 -04:00
+  :arrival_time: 2018-03-28 00:20:00.000000000 -04:00
+  :routing: 2 stops, Change Planes DEN
+  :travel_time: 8h 55m
+  :price: "$329"
+- :id: 14
+  :airline: Southwest
+  :number: 2031, 1731
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 06:15:00.000000000 -04:00
+  :arrival_time: 2018-03-28 12:15:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAS
+  :travel_time: 9h 00m
+  :price: 
+- :id: 15
+  :airline: Southwest
+  :number: '1731'
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 07:40:00.000000000 -04:00
+  :arrival_time: 2018-03-28 12:15:00.000000000 -04:00
+  :routing: 1 stop, No Plane Change
+  :travel_time: 7h 35m
+  :price: 
+- :id: 16
+  :airline: Southwest
+  :number: 2039, 1255
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 08:15:00.000000000 -04:00
+  :arrival_time: 2018-03-28 14:25:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAX
+  :travel_time: 9h 10m
+  :price: 
+- :id: 17
+  :airline: Southwest
+  :number: 5769, 1899
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 09:35:00.000000000 -04:00
+  :arrival_time: 2018-03-28 15:35:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAS
+  :travel_time: 9h 00m
+  :price: 
+- :id: 18
+  :airline: Southwest
+  :number: 594, 1172
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 13:25:00.000000000 -04:00
+  :arrival_time: 2018-03-28 19:40:00.000000000 -04:00
+  :routing: 2 stops, Change Planes LAS
+  :travel_time: 9h 15m
+  :price: 
+- :id: 19
+  :airline: Southwest
+  :number: 1357, 1950
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 13:30:00.000000000 -04:00
+  :arrival_time: 2018-03-28 19:30:00.000000000 -04:00
+  :routing: 1 stop, Change Planes SAN
+  :travel_time: 9h 00m
+  :price: 
+- :id: 20
+  :airline: Southwest
+  :number: 1750, 1251
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 13:55:00.000000000 -04:00
+  :arrival_time: 2018-03-28 19:55:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAX
+  :travel_time: 9h 00m
+  :price: 
+- :id: 21
+  :airline: Southwest
+  :number: 5795, 1349
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 14:50:00.000000000 -04:00
+  :arrival_time: 2018-03-28 19:40:00.000000000 -04:00
+  :routing: 1 stop, Change Planes PHX
+  :travel_time: 7h 50m
+  :price: 
+- :id: 22
+  :airline: Southwest
+  :number: 1114, 788
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 16:20:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:40:00.000000000 -04:00
+  :routing: 2 stops, Change Planes MDW
+  :travel_time: 9h 20m
+  :price: 
+- :id: 23
+  :airline: Southwest
+  :number: 625, 1260
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 17:00:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:45:00.000000000 -04:00
+  :routing: 1 stop, Change Planes SAN
+  :travel_time: 8h 45m
+  :price: 
+- :id: 24
+  :airline: Southwest
+  :number: 1364, 1741
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 17:45:00.000000000 -04:00
+  :arrival_time: 2018-03-28 00:10:00.000000000 -04:00
+  :routing: 2 stops, Change Planes DEN
+  :travel_time: 9h 25m
+  :price: 
+- :id: 25
+  :airline: Southwest
+  :number: 1104, 5663
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 05:30:00.000000000 -04:00
+  :arrival_time: 2018-03-28 16:45:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAS
+  :travel_time: 8h 15m
+  :price: 
+- :id: 26
+  :airline: Southwest
+  :number: 1509, 5996
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 06:10:00.000000000 -04:00
+  :arrival_time: 2018-03-28 17:20:00.000000000 -04:00
+  :routing: 1 stop, Change Planes DEN
+  :travel_time: 8h 10m
+  :price: 
+- :id: 27
+  :airline: Southwest
+  :number: 1533, 5947
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 06:45:00.000000000 -04:00
+  :arrival_time: 2018-03-28 17:20:00.000000000 -04:00
+  :routing: 1 stop, Change Planes SAN
+  :travel_time: 7h 35m
+  :price: 
+- :id: 28
+  :airline: Southwest
+  :number: 1896, 5663
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 07:05:00.000000000 -04:00
+  :arrival_time: 2018-03-28 16:45:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAS
+  :travel_time: 6h 40m
+  :price: 
+- :id: 29
+  :airline: Southwest
+  :number: 1254, 1833
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 10:50:00.000000000 -04:00
+  :arrival_time: 2018-03-28 21:30:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAX
+  :travel_time: 7h 40m
+  :price: 
+- :id: 30
+  :airline: Southwest
+  :number: 1589, 6568
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 11:10:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:00:00.000000000 -04:00
+  :routing: 1 stop, Change Planes DAL
+  :travel_time: 7h 50m
+  :price: 
+- :id: 31
+  :airline: Southwest
+  :number: 1535, 612
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 11:15:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:05:00.000000000 -04:00
+  :routing: 1 stop, Change Planes SAN
+  :travel_time: 7h 50m
+  :price: 
+- :id: 32
+  :airline: Southwest
+  :number: 1731, 1352
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 12:55:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:40:00.000000000 -04:00
+  :routing: 1 stop, Change Planes DEN
+  :travel_time: 6h 45m
+  :price: 
+- :id: 33
+  :airline: Southwest
+  :number: 6250, 1561
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 13:25:00.000000000 -04:00
+  :arrival_time: 2018-03-28 00:30:00.000000000 -04:00
+  :routing: 1 stop, Change Planes LAS
+  :travel_time: 8h 05m
+  :price: 
+- :id: 34
+  :airline: Southwest
+  :number: 6048, 1168
+  :origin: Baltimore/Washington, MD
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 15:00:00.000000000 -04:00
+  :arrival_time: 2018-03-28 01:40:00.000000000 -04:00
+  :routing: 1 stop, Change Planes MDW
+  :travel_time: 7h 40m
+  :price: 
+- :id: 35
+  :airline: Southwest
+  :number: 790, 2059
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 06:00:00.000000000 -04:00
+  :arrival_time: 2018-03-28 11:05:00.000000000 -04:00
+  :routing: 1 stop, Change Planes MDW
+  :travel_time: 8h 05m
+  :price: "$538"
+- :id: 36
+  :airline: Southwest
+  :number: 718, 5883
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 06:25:00.000000000 -04:00
+  :arrival_time: 2018-03-28 14:10:00.000000000 -04:00
+  :routing: 2 stops, Change Planes DAL
+  :travel_time: 10h 45m
+  :price: "$542"
+- :id: 37
+  :airline: Southwest
+  :number: 789, 1899
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 08:15:00.000000000 -04:00
+  :arrival_time: 2018-03-28 15:35:00.000000000 -04:00
+  :routing: 2 stops, Change Planes MDW
+  :travel_time: 10h 20m
+  :price: "$542"
+- :id: 38
+  :airline: Southwest
+  :number: 1340, 1109
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 11:35:00.000000000 -04:00
+  :arrival_time: 2018-03-28 16:05:00.000000000 -04:00
+  :routing: 1 stop, Change Planes STL
+  :travel_time: 7h 30m
+  :price: "$538"
+- :id: 39
+  :airline: Southwest
+  :number: 1753, 788
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 15:00:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:40:00.000000000 -04:00
+  :routing: 1 stop, Change Planes MDW
+  :travel_time: 10h 40m
+  :price: 
+- :id: 40
+  :airline: Southwest
+  :number: 2821, 1601
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 15:45:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:35:00.000000000 -04:00
+  :routing: 1 stop, Change Planes DAL
+  :travel_time: 9h 50m
+  :price: 
+- :id: 41
+  :airline: Southwest
+  :number: 5819, 1260
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 16:30:00.000000000 -04:00
+  :arrival_time: 2018-03-28 22:45:00.000000000 -04:00
+  :routing: 2 stops, Change Planes SAN
+  :travel_time: 9h 15m
+  :price: "$542"
+- :id: 42
+  :airline: Southwest
+  :number: 457, 671
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 16:30:00.000000000 -04:00
+  :arrival_time: 2018-03-28 00:05:00.000000000 -04:00
+  :routing: 2 stops, Change Planes ATL
+  :travel_time: 10h 35m
+  :price: "$542"
+- :id: 43
+  :airline: Southwest
+  :number: 457, 5424
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 16:30:00.000000000 -04:00
+  :arrival_time: 2018-03-28 00:05:00.000000000 -04:00
+  :routing: 2 stops, Change Planes PHX
+  :travel_time: 10h 35m
+  :price: "$542"
+- :id: 44
+  :airline: Southwest
+  :number: 6066, 1741
+  :origin: Washington (Reagan National), DC
+  :destination: "San Francisco, CA\r"
+  :departure_time: 2018-03-28 17:15:00.000000000 -04:00
+  :arrival_time: 2018-03-28 00:10:00.000000000 -04:00
+  :routing: 2 stops, Change Planes BNA
+  :travel_time: 9h 55m
+  :price: "$542"
