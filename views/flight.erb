@@ -1,5 +1,9 @@
 <table>
   <tr>
+    <th>Date</th>
+    <td><%= format_date @flight[:date] %></td>
+  </tr>
+  <tr>
     <th>Airline</th>
     <td><%= @flight[:airline] %></td>
   </tr>
@@ -21,7 +25,7 @@
   </tr>
   <tr>
     <th>Arrival Time</th>
-    <td><%= format_time @flight[:arrival_time] %></td>
+    <td><%= format_arrival_time(@flight) %></td>
   </tr>
   <tr>
     <th>Routing</th>
@@ -29,11 +33,11 @@
   </tr>
   <tr>
     <th>Travel Time</th>
-    <td><%= @flight[:travel_time] %></td>
+    <td><%= format_travel_time(@flight) %></td>
   </tr>
   <tr>
     <th>Price</th>
-    <td><%= @flight[:price] %></td>
+    <td>$<%= @flight[:price] %></td>
   </tr>
 </table>
 

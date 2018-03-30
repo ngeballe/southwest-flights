@@ -1,29 +1,57 @@
-<h1>Flights</h1>
+<h1><a href="/flights">Flights</a></h1>
 
 <a href="/flights/new">New Flight</a>
 
 <a href="/flights/add-southwest-flights">Add Southwest Flights</a>
 
+<p>
+  Sort by
+  <form action="/flights" method="get" class="inline">
+    <input type="hidden" name="sort" value="price">
+    <button type="submit">Price</button>
+  </form>
+
+  <form action="/flights" method="get" class="inline">
+    <input type="hidden" name="sort" value="duration">
+    <button id="submit">Duration</button>
+  </form>
+
+  <form action="/flights" method="get" class="inline">
+    <input type="hidden" name="sort" value="takeoff">
+    <button id="sort_by_takeoff">Takeoff</button>
+  </form>
+
+  <form action="/flights" method="get" class="inline">
+    <input type="hidden" name="sort" value="landing">
+    <button id="sort_by_landing">Landing</button>
+  </form>
+</p>
+
 <table>
-  <tr>
-    <% FLIGHT_ATTRIBUTES.each do |attribute| %>
-      <th><%= attribute %></th>
-    <% end %>
-  </tr>
-  <% @flights.each do |flight| %>
+  <thead>
     <tr>
-      <td><%= flight[:airline] %></td>
-      <td><%= flight[:number] %></td>
-      <td><%= flight[:origin] %></td>
-      <td><%= flight[:destination] %></td>
-      <td><%= format_time flight[:departure_time] %></td>
-      <td><%= format_time flight[:arrival_time] %></td>
-      <td><%= flight[:routing] %></td>
-      <td><%= flight[:travel_time] %></td>
-      <td><%= flight[:price] %></td>
-      <td><a href="/flights/<%= flight[:id] %>">View</a></td>
+      <% FLIGHT_ATTRIBUTES.each do |attribute| %>
+        <th><%= attribute %></th>
+      <% end %>
     </tr>
-  <% end %>
+  </thead>
+  <tbody>
+    <% @flights.each do |flight| %>
+      <tr>
+        <td><%= format_date flight[:date] %></td>
+        <td><%= flight[:airline] %></td>
+        <td><%= flight[:number] %></td>
+        <td><%= flight[:origin] %></td>
+        <td><%= flight[:destination] %></td>
+        <td><%= format_time flight[:departure_time] %></td>
+        <td><%= format_arrival_time(flight) %></td>
+        <td><%= flight[:routing] %></td>
+        <td><%= format_travel_time(flight) %></td>
+        <td>$<%= flight[:price] %></td>
+        <td><a href="/flights/<%= flight[:id] %>">View</a></td>
+      </tr>
+    <% end %>
+  </tbody>
 </table>
 
 <form action="/flights/delete_all" method="post" class="delete">

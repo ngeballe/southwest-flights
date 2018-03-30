@@ -2,6 +2,10 @@
 
 <form action="/flights/<%= @flight[:id] %>" method="post">
   <div>
+    <label for="date">Date</label>
+    <input type="date" name="date" value="<%= params[:date] || @flight[:date] %>">
+  </div>
+  <div>
     <label for="airline">Airline</label>
     <input type="text" name="airline" value="<%= params[:airline] || @flight[:airline] %>">
   </div>
@@ -24,6 +28,8 @@
   <div>
     <label for="arrival_time">Arrival Time</label>
     <input type="time" name="arrival_time" value="<%= params[:arrival_time] || military_time(@flight[:arrival_time]) %>">
+    <label for="next_day_arrival">Next day arrival?</label>
+    <input type="checkbox" name="next_day_arrival" id="next_day_arrival" <%= 'checked' if params[:next_day_arrival] == 'on' || @flight[:next_day_arrival] %>>
   </div>
   <div>
     <label for="routing">Routing</label>
@@ -31,11 +37,11 @@
   </div>
   <div>
     <label for="travel_time">Travel Time</label>
-    <input type="text" name="travel_time" value="<%= params[:travel_time] || @flight[:travel_time] %>">
+    <input type="text" name="travel_time" value="<%= params[:travel_time] || format_travel_time(@flight) %>">
   </div>
   <div>
     <label for="price">Price</label>
-    <input type="text" name="price" value="<%= params[:price] || @flight[:price] %>">
+    <input type="text" name="price" value="<%= params[:price] || "$#{@flight[:price]}" %>">
   </div>
   <div>
     <button type="submit">Save</button>

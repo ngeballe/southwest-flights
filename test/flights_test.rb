@@ -23,6 +23,7 @@ class FlightsTest < Minitest::Test
 
   def flight_attributes
     {
+      date: '2018-3-25',
       airline: 'Southwest',
       number: '268',
       origin: 'DCA',
@@ -58,6 +59,7 @@ class FlightsTest < Minitest::Test
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
     assert_includes last_response.body, 'New Flight'
 
+    assert_includes last_response.body, 'Date'
     assert_includes last_response.body, 'Airline'
     assert_includes last_response.body, 'Flight Number'
     assert_includes last_response.body, 'Origin'
@@ -68,6 +70,7 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, 'Travel Time'
     assert_includes last_response.body, 'Price'
 
+    assert_includes last_response.body, 'Sun., Mar. 25'
     assert_includes last_response.body, flight_attributes[:airline]
     assert_includes last_response.body, flight_attributes[:number]
     assert_includes last_response.body, flight_attributes[:origin]
@@ -77,6 +80,65 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, flight_attributes[:routing]
     assert_includes last_response.body, flight_attributes[:travel_time]
     assert_includes last_response.body, flight_attributes[:price]
+  end
+
+  def test_flights_index_sort_by_price
+    post '/flights', flight_attributes.merge(price: '$300')
+    post '/flights', flight_attributes.merge(price: '$100')
+    post '/flights', flight_attributes.merge(price: '$200')
+
+    get '/flights?sort=price'
+
+    assert_equal 200, last_response.status
+
+    assert_match /\$100.*\$200.*\$300/m, last_response.body
+  end
+
+  def test_flights_index_sort_by_duration
+    post '/flights', flight_attributes.merge(travel_time: '10h 30m')
+    post '/flights', flight_attributes.merge(travel_time: '7h 20m')
+    post '/flights', flight_attributes.merge(travel_time: '8h 10m')
+
+    get '/flights?sort=duration'
+
+    assert_equal 200, last_response.status
+
+    assert_match /7h 20m.*8h 10m.*10h 30m/m, last_response.body
+  end
+
+  def test_flights_index_sort_by_takeoff
+    post '/flights', flight_attributes.merge(departure_time: '8:45 AM')
+    post '/flights', flight_attributes.merge(departure_time: '1:39 PM')
+    post '/flights', flight_attributes.merge(departure_time: '9:05 AM')
+
+    get '/flights?sort=takeoff'
+
+    assert_equal 200, last_response.status
+
+    assert_match /8:45 AM.*9:05 AM.*1:39 PM/m, last_response.body
+  end
+
+  def test_flights_index_sort_by_landing
+    post '/flights', flight_attributes.merge(arrival_time: '8:45 AM')
+    post '/flights', flight_attributes.merge(arrival_time: '1:39 PM')
+    post '/flights', flight_attributes.merge(arrival_time: '9:05 AM')
+
+    get '/flights?sort=landing'
+
+    assert_equal 200, last_response.status
+
+    assert_match /8:45 AM.*9:05 AM.*1:39 PM/m, last_response.body
+  end
+
+  def test_flights_index_sorts_next_day_arrivals_correctly
+    post '/flights', flight_attributes.merge(arrival_time: '8:45 AM')
+    post '/flights', flight_attributes.merge(arrival_time: '1:39 PM')
+    post '/flights', flight_attributes.merge(arrival_time: '9:05 AM')
+    post '/flights', flight_attributes.merge(arrival_time: '0:55', next_day_arrival: 'on')
+
+    get '/flights?sort=landing'
+
+    assert_match /8:45 AM.*9:05 AM.*1:39 PM.*12:55 AM next day/m, last_response.body
   end
 
   def test_new_flight
@@ -90,8 +152,10 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, %q(<input type="text" name="number")
     assert_includes last_response.body, %q(<input type="text" name="origin")
     assert_includes last_response.body, %q(<input type="text" name="destination")
+    assert_includes last_response.body, %q(<input type="date" name="date")
     assert_includes last_response.body, %q(<input type="time" name="departure_time")
     assert_includes last_response.body, %q(<input type="time" name="arrival_time")
+    assert_includes last_response.body, %q(<input type="checkbox" name="next_day_arrival")
     assert_includes last_response.body, %q(<input type="text" name="routing")
     assert_includes last_response.body, %q(<input type="text" name="travel_time")
     assert_includes last_response.body, %q(<input type="text" name="price")
@@ -106,9 +170,11 @@ class FlightsTest < Minitest::Test
 
     get last_response['Location']
 
-    [:airline, :number, :origin, :destination, :routing, :travel_time, :price].each do |attribute|
+    [:airline, :number, :origin, :destination, :departure_time, :arrival_time, :routing, :travel_time, :price].each do |attribute|
       assert_includes last_response.body, flight_attributes[attribute]
     end
+
+    assert_includes last_response.body, 'Sun., Mar. 25'
   end
 
   def test_creating_second_flight
@@ -119,6 +185,14 @@ class FlightsTest < Minitest::Test
 
     assert_includes last_response.body, 'United'
     assert_includes last_response.body, 'another airline'
+  end
+
+  def test_create_flight_requires_valid_date
+    post '/flights', flight_attributes.merge(date: 'never')
+
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, 'Invalid date.'
   end
 
   def test_create_flight_requires_airline
@@ -154,6 +228,13 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, 'Please enter the departure time.'
   end
 
+  def test_create_flight_requires_price
+    post '/flights', flight_attributes.merge(price: '')
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, 'Please enter the price.'
+  end
+
   def test_show_multiple_errors_at_once
     post '/flights', flight_attributes.merge(airline: '', departure_time: '', destination: '')
 
@@ -164,12 +245,14 @@ class FlightsTest < Minitest::Test
   end
 
   def test_show_flight
-    post '/flights', flight_attributes
+    post '/flights', flight_attributes.merge(next_day_arrival: 'on')
 
     get '/flights/1'
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, 'Date'
+    assert_includes last_response.body, 'Sun., Mar. 25'
     assert_includes last_response.body, 'Airline'
     assert_includes last_response.body, 'Southwest'
     assert_includes last_response.body, 'Flight Number'
@@ -181,7 +264,7 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, 'Departure Time'
     assert_includes last_response.body, '6:00 AM'
     assert_includes last_response.body, 'Arrival Time'
-    assert_includes last_response.body, '12:33 PM'
+    assert_includes last_response.body, '12:33 PM next day'
     assert_includes last_response.body, 'Routing'
     assert_includes last_response.body, '1 stop, Change Planes DEN'
     assert_includes last_response.body, 'Travel Time'
@@ -202,7 +285,7 @@ class FlightsTest < Minitest::Test
   end
 
   def test_edit_flight
-    post '/flights', flight_attributes
+    post '/flights', flight_attributes.merge(arrival_time: '00:05', next_day_arrival: 'on')
 
     get '/flights/1'
 
@@ -212,26 +295,29 @@ class FlightsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal 'text/html;charset=utf-8', last_response['Content-Type']
+    assert_includes last_response.body, %q(<input type="date" name="date" value="2018-03-25")
     assert_includes last_response.body, %q(<input type="text" name="airline" value="Southwest")
     assert_includes last_response.body, %q(<input type="text" name="number" value="268")
     assert_includes last_response.body, %q(<input type="text" name="origin" value="DCA")
     assert_includes last_response.body, %q(<input type="text" name="destination" value="SFO")
     assert_includes last_response.body, %q(<input type="time" name="departure_time" value="06:00")
-    assert_includes last_response.body, %q(<input type="time" name="arrival_time" value="12:33")
+    assert_includes last_response.body, %q(<input type="time" name="arrival_time" value="00:05")
+    assert_includes last_response.body, %q(<input type="checkbox" name="next_day_arrival" id="next_day_arrival" checked)
     assert_includes last_response.body, %q(<input type="text" name="routing" value="1 stop, Change Planes DEN")
     assert_includes last_response.body, %q(<input type="text" name="travel_time" value="9h 35m")
     assert_includes last_response.body, %q(<input type="text" name="price" value="$199")
   end
 
   def test_update_flight
-    post '/flights', flight_attributes
+    post '/flights', flight_attributes.merge(next_day_arrival: 'on')
 
     get '/flights/1'
 
     assert_includes last_response.body, 'Southwest'
     assert_includes last_response.body, '268'
+    assert_includes last_response.body, 'next day'
 
-    post '/flights/1', flight_attributes.merge(airline: 'Spirit', number: '999')
+    post '/flights/1', flight_attributes.merge(airline: 'Spirit', number: '999', date: '2018-1-1', next_day_arrival: '')
 
     assert_equal 302, last_response.status
     assert_equal 'Flight information updated.', session[:success]
@@ -240,8 +326,11 @@ class FlightsTest < Minitest::Test
 
     assert_includes last_response.body, 'Spirit'
     assert_includes last_response.body, '999'
+    assert_includes last_response.body, 'Mon., Jan. 1'
+    
     refute_includes last_response.body, 'Southwest'
     refute_includes last_response.body, '268'
+    refute_includes last_response.body, 'next day'
   end
 
   def test_delete_flight
@@ -574,12 +663,16 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, 'Southwest'
     assert_includes last_response.body, 'Washington (Reagan National), DC'
     assert_includes last_response.body, 'Seattle/Tacoma, WA'
+    assert_includes last_response.body, 'Wed., Apr. 11'
+
+    assert_includes last_response.body, '5747, 1920'
     assert_includes last_response.body, '6:00 AM'
     assert_includes last_response.body, '11:00 AM'
-    assert_includes last_response.body, '5747, 1920'
     assert_includes last_response.body, '1 stop, Change Planes MDW'
     assert_includes last_response.body, '8h 00m'
     assert_includes last_response.body, '$172'
+
+    refute_includes last_response.body, '$$172'
 
     assert_includes last_response.body, '704, 1640'
     assert_includes last_response.body, '6:45 AM'

@@ -10,7 +10,7 @@ $(function() {
     }
   });
 
-  $('textarea#southwest_flight').change(function() {
+  $('textarea#southwest_flight').blur(function() {
     var text = $('#southwest_flight').val();
 
     $('#airline').val('Southwest');
@@ -23,9 +23,12 @@ $(function() {
     var departure_time_converted = convert_to_time_format(departure_time_string);
     $('#departure_time').val(departure_time_converted);
     
-    var arrival_time_string = text.match(/\d+:\d+\s[AP]M/g)[1];
+    var arrival_time_string = text.match(/\d+:\d+\s[AP]M(\s+Next Day)?/g)[1];
     var arrival_time_string_converted = convert_to_time_format(arrival_time_string);
     $('#arrival_time').val(arrival_time_string_converted);
+    if (arrival_time_string.includes("Next Day")) {
+      $("#next_day_arrival").attr('checked', true);
+    }
 
     var routing = text.match(/\d+ stop(s?).+\n.+/)[0];
     routing = routing.replace(" (opens popup)", ", ");
@@ -51,6 +54,7 @@ function convert_to_time_format(time_string) {
   var am_pm = minute_and_am_pm.split(" ")[1];
   
   if (am_pm == "PM" && hour < 12) { hour += 12 };
+  if (am_pm != "PM" && hour == 12) { hour = 0 };
   if (hour < 10) { hour = "0" + hour };
 
   return hour + ":" + minute;
