@@ -235,6 +235,17 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, 'Please enter the price.'
   end
 
+  def test_create_flight_validates_for_flight_uniqueness
+    post '/flights', flight_attributes
+
+    assert_equal 302, last_response.status
+
+    post '/flights', flight_attributes
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, 'That flight is already on your list.'
+  end
+
   def test_show_multiple_errors_at_once
     post '/flights', flight_attributes.merge(airline: '', departure_time: '', destination: '')
 
@@ -314,8 +325,8 @@ class FlightsTest < Minitest::Test
     get '/flights/1'
 
     assert_includes last_response.body, 'Southwest'
-    assert_includes last_response.body, '268'
     assert_includes last_response.body, 'next day'
+    assert_includes last_response.body, '268'
 
     post '/flights/1', flight_attributes.merge(airline: 'Spirit', number: '999', date: '2018-1-1', next_day_arrival: '')
 
@@ -331,6 +342,41 @@ class FlightsTest < Minitest::Test
     refute_includes last_response.body, 'Southwest'
     refute_includes last_response.body, '268'
     refute_includes last_response.body, 'next day'
+  end
+
+  def test_update_flight_validates
+    post '/flights', flight_attributes
+
+    post '/flights/1', flight_attributes.merge(price: '')
+
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, 'Please enter the price.'
+  end
+
+  def test_update_flight_validates_uniqueness
+    post '/flights', flight_attributes.merge(airline: 'Airline 1')
+    post '/flights', flight_attributes.merge(airline: 'Airline 2')
+
+    post '/flights/2', flight_attributes.merge(airline: 'Airline 1')
+
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, 'That flight is already on your list.'
+  end
+
+  def test_update_flight_without_changing_information_valid
+    post '/flights', flight_attributes
+
+    post '/flights/1', flight_attributes
+
+    assert_equal 'Flight information updated.', session[:success]
+
+    assert_equal 302, last_response.status
+  end
+
+  def test_updating_flight_does_not_require_date
+    skip
   end
 
   def test_delete_flight

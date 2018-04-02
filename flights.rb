@@ -47,22 +47,21 @@ def data_path
   end
 end
 
-def errors_for_flight(date, airline, number, origin, destination, departure_time, arrival_time, price)
+def errors_for_flight(flight)
   errors = []
-  begin
-    unless date.empty?
-      date_object = Date.parse(date)
-    end
-  rescue ArgumentError
-    errors << "Invalid date."
-  end
-  errors << "Please enter the airline name." if airline.empty?
-  errors << "Please enter the airport you're departing from." if origin.empty?
-  errors << "Please enter the destination airport." if destination.empty?
-  errors << "Please enter the departure time." if departure_time == ''
-  errors << "Please enter the arrival time" if arrival_time == ''
-  errors << "Please enter the price." if price == '' || price.nil?
+  errors << 'Invalid date.' if flight[:date].nil?
+  errors << "Please enter the airline name." if flight[:airline].empty?
+  errors << "Please enter the airport you're departing from." if flight[:origin].empty?
+  errors << "Please enter the destination airport." if flight[:destination].empty?
+  errors << "Please enter the departure time." if flight[:departure_time] == ''
+  errors << "Please enter the arrival time" if flight[:arrival_time] == ''
+  errors << "Please enter the price." if ['', nil].include?(flight[:price])
+  errors << "That flight is already on your list." unless flight_unique?(flight)
   errors
+end
+
+def invalid_date?(flight)
+  flight[:date] 
 end
 
 def set_flight
@@ -109,6 +108,33 @@ def to_minutes(travel_time_string)
   hours * 60 + minutes
 end
 
+def price_as_integer(price)
+  if price && !price.empty?
+    price = price[1..-1].to_i
+  else
+    price = nil
+  end
+end
+
+def flight_unique?(flight)
+  @flights.none? do |existing_flight|
+    # existing_flight
+    # all but ID same?
+    same_values_except_id?(flight, existing_flight)
+  end
+end
+
+def same_values_except_id?(flight1, flight2)
+  return false if flight1[:id] == flight2[:id]
+  # throw [flight1.reject { |k, v| k == :id }, flight2.reject { |k, v| k == :id }]
+  flight1_attributes = flight1.reject { |k, v| k == :id }
+  flight2_attributes = flight2.reject { |k, v| k == :id }
+  # throw one_without == two_without
+  # flight1.reject { |k, v| k == :id } == 
+    # flight2.reject { |k, v| k == :id }
+  flight1_attributes == flight2_attributes
+end
+
 get '/' do
   redirect '/flights'
 end
@@ -144,28 +170,28 @@ post '/flights' do
   arrival_time = parse_time(params[:arrival_time], next_day_arrival)
   routing = params[:routing]
   travel_time = params[:travel_time]
-  price = params[:price]
+  price = price_as_integer(params[:price])
 
-  @errors = errors_for_flight(date, airline, number, origin, destination, departure_time, arrival_time, price)
+  flight = {
+    id: next_id(@flights),
+    date: parse_date(date),
+    airline: airline,
+    number: number,
+    origin: origin,
+    destination: destination,
+    departure_time: departure_time,
+    arrival_time: arrival_time,
+    next_day_arrival: next_day_arrival,
+    routing: routing,
+    travel_time: to_minutes(travel_time),
+    price: price
+  }
+  @errors = errors_for_flight(flight)
   if @errors.any?
     status 422
-    session[:error] = erb(:flight_errors)
+    session[:error] = erb :flight_errors, layout: nil
     erb :new_flight
   else
-    flight = {
-      id: next_id(@flights),
-      date: parse_date(date),
-      airline: airline,
-      number: number,
-      origin: origin,
-      destination: destination,
-      departure_time: departure_time,
-      arrival_time: arrival_time,
-      next_day_arrival: next_day_arrival,
-      routing: routing,
-      travel_time: to_minutes(travel_time),
-      price: price[1..-1].to_i
-    }
     @flights << flight
     session[:success] = 'Flight information added.'
     redirect '/flights'
@@ -217,23 +243,22 @@ post '/flights/add-southwest-flights' do
     
     price = row.scan(/\$\d+/)[-1]
 
-    @errors = errors_for_flight(date_string, airline, flight_number, origin, destination, departure_time, arrival_time, price)
-
+    flight = {
+      id: next_id(@flights),
+      date: date,
+      airline: airline,
+      number: flight_number,
+      origin: origin,
+      destination: destination,
+      departure_time: departure_time,
+      arrival_time: arrival_time,
+      next_day_arrival: next_day_arrival,
+      routing: routing,
+      travel_time: to_minutes(travel_time),
+      price: price[1..-1].to_i
+    }
+    @errors = errors_for_flight(flight)
     if @errors.none?
-      flight = {
-        id: next_id(@flights),
-        date: date,
-        airline: airline,
-        number: flight_number,
-        origin: origin,
-        destination: destination,
-        departure_time: departure_time,
-        arrival_time: arrival_time,
-        next_day_arrival: next_day_arrival,
-        routing: routing,
-        travel_time: to_minutes(travel_time),
-        price: price[1..-1].to_i
-      }
       @flights << flight
       counter += 1
     end
@@ -275,23 +300,21 @@ post '/flights/:id' do
   next_day_arrival = (params[:next_day_arrival] == 'on')
   routing = params[:routing]
   travel_time = params[:travel_time]
-  price = params[:price]
+  price = price_as_integer(params[:price])
 
-  @errors = errors_for_flight(date, airline, number, origin, destination, departure_time, arrival_time, price)
+  flight = @flight.merge(date: parse_date(date), airline: airline,
+    number: number, origin: origin, destination: destination,
+    departure_time: departure_time, arrival_time: arrival_time,
+    next_day_arrival: next_day_arrival, routing: routing, travel_time: to_minutes(travel_time), price: price)
+
+  @errors = errors_for_flight(flight)
 
   if @errors.any?
     status 422
-    session[:error] = erb(:flight_errors)
+    session[:error] = erb :flight_errors, layout: nil
     erb :edit_flight
   else
-    @flight[:date] = parse_date(date)
-    @flight[:airline] = airline
-    @flight[:number] = number
-    @flight[:origin] = origin
-    @flight[:destination] = destination
-    @flight[:departure_time] = departure_time
-    @flight[:arrival_time] = arrival_time
-    @flight[:next_day_arrival] = next_day_arrival
+    @flight.merge!(flight)
     session[:success] = 'Flight information updated.'
     redirect '/flights'
   end
