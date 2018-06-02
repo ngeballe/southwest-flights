@@ -2,6 +2,15 @@ body {
   font-family: Arial, sans-serif;
 }
 
+div.col-6 {
+  width: 50%;
+  float: left;
+}
+
+h1 {
+  font-size: 1.1em;
+}
+
 div.flash {
   padding: 1em;
 }
@@ -15,8 +24,8 @@ div.flash.error {
 }
 
 textarea {
-  width: 40em;
-  height: 10em;
+  width: 35em;
+  height: 3em;
   font-size: 1em;
 }
 
@@ -32,4 +41,17 @@ th, td {
 
 form.inline {
   display: inline;
+}
+
+button {
+  font-size: 1em;
+}
+
+form.delete button {
+  /*background-color: hsl(0, 90%, 80%);*/
+  /*background-color: #FAA;*/
+}
+
+button.highlighted {
+  background-color: hsl(20, 100%, 65%);
 }

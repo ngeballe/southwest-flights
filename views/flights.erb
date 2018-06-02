@@ -1,31 +1,43 @@
-<h1><a href="/flights">Flights</a></h1>
-
 <a href="/flights/new">New Flight</a>
 
-<a href="/flights/add-southwest-flights">Add Southwest Flights</a>
+<div class="row">
+  <div class="col-6">
+    <h1>Add Southwest Flights</h1>
+    <form action="/flights/add-southwest-flights" method="post">
+      <label for="southwest_flights_information">Paste the whole page here:</label>
+      <br>
+      <textarea name="southwest_flights_information"></textarea>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
+    </form>
 
-<p>
-  Sort by
-  <form action="/flights" method="get" class="inline">
-    <input type="hidden" name="sort" value="price">
-    <button type="submit">Price</button>
-  </form>
-
-  <form action="/flights" method="get" class="inline">
-    <input type="hidden" name="sort" value="duration">
-    <button id="submit">Duration</button>
-  </form>
-
-  <form action="/flights" method="get" class="inline">
-    <input type="hidden" name="sort" value="takeoff">
-    <button id="sort_by_takeoff">Takeoff</button>
-  </form>
-
-  <form action="/flights" method="get" class="inline">
-    <input type="hidden" name="sort" value="landing">
-    <button id="sort_by_landing">Landing</button>
-  </form>
-</p>
+    <div>
+      Sort flights by:
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="price">
+        <button type="submit" class="<%= highlight_class('price') %>">Price</button>
+      </form>
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="duration">
+        <button id="submit" class="<%= highlight_class('duration') %>">Duration</button>
+      </form>
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="takeoff">
+        <button id="sort_by_takeoff" class="<%= highlight_class('takeoff') %>">Takeoff</button>
+      </form>
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="landing">
+        <button id="sort_by_landing" class="<%= highlight_class('landing') %>">Landing</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-6">
+    <form action="/flights/delete_all" method="post" class="delete">
+      <button type="submit">Delete All Flights</button>
+    </form>
+  </div>
+</div>
 
 <table>
   <thead>
@@ -54,6 +66,4 @@
   </tbody>
 </table>
 
-<form action="/flights/delete_all" method="post" class="delete">
-  <button type="submit">Delete All Flights</button>
-</form>
+

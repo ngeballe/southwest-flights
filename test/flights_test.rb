@@ -790,4 +790,12 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, '9h 05m'
     assert_includes last_response.body, '$306'
   end
+
+  def test_submitting_southwest_flights_with_no_data
+    post '/flights/add-southwest-flights', southwest_flights_information: ''
+
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, 'Invalid data.'
+  end
 end

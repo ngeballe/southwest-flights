@@ -1,6 +1,13 @@
 require 'sinatra'
-require 'sinatra/reloader'
+require 'sinatra/reloader' if development?
 require 'yaml/store'
+require 'tilt/erubis'
+
+module Southwest
+  FLIGHT_ROW_AREA_START = /(?<=Wanna Get Away\n).+/im
+  FLIGHT_ROW_DELIMITER = /\n(?=#\s?\d+)/
+  FLIGHT_NUMBER_REGEX = /(?<=^#\s).+(?=Nonstop|\d+ stop)/
+end
 
 configure do
   enable :sessions
@@ -27,7 +34,7 @@ helpers do
 
   def format_arrival_time(flight)
     arrival_time_string = format_time(flight[:arrival_time])
-    arrival_time_string << " next day" if flight[:next_day_arrival]
+    arrival_time_string << ' next day' if flight[:next_day_arrival]
     arrival_time_string
   end
 
@@ -35,12 +42,20 @@ helpers do
     hours, minutes = flight[:travel_time].divmod(60)
     format('%dh %02dm', hours, minutes)
   end
+
+  def highlight_class(sort_type)
+    if params[:sort] == sort_type
+      'highlighted'
+    else
+      ''
+    end
+  end
 end
 
 FLIGHT_ATTRIBUTES = ['Date', 'Airline', 'Flight Number', 'Origin', 'Destination', 'Departure Time', 'Arrival Time', 'Routing', 'Travel Time', 'Price']
 
 def data_path
-  if ENV["RACK_ENV"] == "test"
+  if ENV['RACK_ENV'] == 'test'
     'test/data.yml'
   else
     'data.yml'
@@ -50,13 +65,13 @@ end
 def errors_for_flight(flight)
   errors = []
   errors << 'Invalid date.' if flight[:date].nil?
-  errors << "Please enter the airline name." if flight[:airline].empty?
+  errors << 'Please enter the airline name.' if flight[:airline].empty?
   errors << "Please enter the airport you're departing from." if flight[:origin].empty?
-  errors << "Please enter the destination airport." if flight[:destination].empty?
-  errors << "Please enter the departure time." if flight[:departure_time] == ''
-  errors << "Please enter the arrival time" if flight[:arrival_time] == ''
-  errors << "Please enter the price." if ['', nil].include?(flight[:price])
-  errors << "That flight is already on your list." unless flight_unique?(flight)
+  errors << 'Please enter the destination airport.' if flight[:destination].empty?
+  errors << 'Please enter the departure time.' if flight[:departure_time] == ''
+  errors << 'Please enter the arrival time' if flight[:arrival_time] == ''
+  errors << 'Please enter the price.' if ['', nil].include?(flight[:price])
+  errors << 'That flight is already on your list.' unless flight_unique?(flight)
   errors
 end
 
@@ -126,13 +141,87 @@ end
 
 def same_values_except_id?(flight1, flight2)
   return false if flight1[:id] == flight2[:id]
-  # throw [flight1.reject { |k, v| k == :id }, flight2.reject { |k, v| k == :id }]
   flight1_attributes = flight1.reject { |k, v| k == :id }
   flight2_attributes = flight2.reject { |k, v| k == :id }
-  # throw one_without == two_without
-  # flight1.reject { |k, v| k == :id } == 
-    # flight2.reject { |k, v| k == :id }
   flight1_attributes == flight2_attributes
+end
+
+def parse_flight_from_southwest_page_row(row, origin, destination, date_string)
+  date = Date.parse(date_string) if date_string
+
+  flight_numbers = row.scan(Southwest::FLIGHT_NUMBER_REGEX)
+  flight_number = flight_numbers.join(', ')
+
+  time_regex = /\d+:\d+\s?[AP]M.?+Next Day|\d+:\d+\s?[AP]M/m
+  departure_time_string = row[time_regex]
+  departure_time = Time.parse("#{date_string}, #{departure_time_string}")
+
+  arrival_time_string = row.scan(time_regex)[1]
+
+  arrival_time = Time.parse("#{date_string}, #{arrival_time_string}")
+
+  next_day_arrival = row.include?('Next Day')
+  arrival_time += 60 * 60 * 24 if next_day_arrival
+
+  routing = row[/Nonstop|\d stop(s?)\n?/i]
+
+  routing = if routing
+              routing.strip.gsub(/[\r\n]/, ', ')
+            else
+              'Nonstop'
+            end
+
+  travel_time = row[/\d+h\s\d+m/]
+
+  price = row.scan(/\$\d+/)[-1] || ''
+  return if price.empty?
+
+  {
+    id: next_id(@flights),
+    date: date,
+    airline: 'Southwest',
+    number: flight_number,
+    origin: origin,
+    destination: destination,
+    departure_time: departure_time,
+    arrival_time: arrival_time,
+    next_day_arrival: next_day_arrival,
+    routing: routing,
+    travel_time: to_minutes(travel_time),
+    price: Integer(price[1..-1])
+  }
+end
+
+def flight_params
+  {
+    date: parse_date(params[:date]),
+    airline: params[:airline].strip,
+    number: params[:number],
+    origin: params[:origin].strip,
+    destination: params[:destination].strip,
+    departure_time: parse_time(params[:departure_time]),
+    arrival_time: parse_time(params[:arrival_time]),
+    next_day_arrival: (params[:next_day_arrival] == 'on'),
+    routing: params[:routing],
+    travel_time: to_minutes(params[:travel_time]),
+    price: price_as_integer(params[:price])
+  }
+end
+
+def parse_origin_and_destination(southwest_flights_info)
+  southwest_flights_info[/.+([A-Z]{3}) to .+([A-Z]{3})/]
+  # origin = $1
+  origin = Regexp.last_match[1]
+  # destination = $2
+  destination = Regexp.last_match[2]
+
+  [origin, destination]
+end
+
+def flight_rows(southwest_flights_info)
+  flight_row_area = southwest_flights_info[Southwest::FLIGHT_ROW_AREA_START]
+
+  flight_row_area.split(Southwest::FLIGHT_ROW_DELIMITER)
 end
 
 get '/' do
@@ -159,33 +248,8 @@ get '/flights/new' do
 end
 
 post '/flights' do
-  date = params[:date]
-  airline = params[:airline].strip
-  number = params[:number]
-  origin = params[:origin].strip
-  destination = params[:destination].strip
-  departure_time = parse_time(params[:departure_time])
-  
-  next_day_arrival = (params[:next_day_arrival] == 'on')
-  arrival_time = parse_time(params[:arrival_time], next_day_arrival)
-  routing = params[:routing]
-  travel_time = params[:travel_time]
-  price = price_as_integer(params[:price])
+  flight = flight_params.merge(id: next_id(@flights))
 
-  flight = {
-    id: next_id(@flights),
-    date: parse_date(date),
-    airline: airline,
-    number: number,
-    origin: origin,
-    destination: destination,
-    departure_time: departure_time,
-    arrival_time: arrival_time,
-    next_day_arrival: next_day_arrival,
-    routing: routing,
-    travel_time: to_minutes(travel_time),
-    price: price
-  }
   @errors = errors_for_flight(flight)
   if @errors.any?
     status 422
@@ -203,60 +267,28 @@ get '/flights/add-southwest-flights' do
 end
 
 post '/flights/add-southwest-flights' do
-  airline = 'Southwest'
   flights_info = params[:southwest_flights_information]
-  
-  flights_info.gsub!("\r", '')
-  
-  origin_and_destination_info = flights_info[/Select Departing Flight:\s+(.+) to (.+)\s+Modify Search/]
 
-  origin = $1
-  destination = $2
-  
-  date_string = flights_info[/^.+(?= Selected Day\s+)/]
-  date = Date.parse(date_string) if date_string
-  
-  flight_row_area = flights_info[/\d+:\d+ [AP]M.+(?=Price selected flight)/m]
-  flight_rows = flight_row_area.split(/\n(?=\d+:\d+ [AP]M\s+\d+:\d+ [AP]M)/m)
+  if flights_info.strip.empty?
+    status 422
+    session[:error] = 'Invalid data.'
+    redirect '/flights'
+  end
+
+  flights_info.delete!("\r")
+
+  origin, destination = parse_origin_and_destination(flights_info)
+
+  date_string = flights_info[/^[A-Z]{3}\s\d\d$/]
 
   counter = 0
-  
-  flight_rows.each do |row|
-    flight_numbers = row.scan(/\d+(?=\s\(opens popup\))/)
-    flight_number = flight_numbers.join(", ");
-    
-    time_regex = /\d+:\d+\s[AP]M.?+Next Day|\d+:\d+\s[AP]M/m
-    departure_time_string = row[time_regex]
-    departure_time = Time.parse("#{date_string}, #{departure_time_string}")
 
-    arrival_time_string = row.scan(time_regex)[1]
+  flight_rows(flights_info).each do |row|
+    flight = parse_flight_from_southwest_page_row(row, origin,
+                                                  destination,
+                                                  date_string)
+    next unless flight
 
-    arrival_time = Time.parse("#{date_string}, #{arrival_time_string}")
-    next_day_arrival = arrival_time_string.include?("Next Day")
-    arrival_time += 60 * 60 * 24 if next_day_arrival
-
-    routing = row[/Nonstop|\d+ stop(s?).+\n.+/]
-    routing = routing.sub(" (opens popup)", ", ")
-                     .gsub(/[\r\n]/, '')
-
-    travel_time = row[/\d+h\s\d+m/]
-    
-    price = row.scan(/\$\d+/)[-1]
-
-    flight = {
-      id: next_id(@flights),
-      date: date,
-      airline: airline,
-      number: flight_number,
-      origin: origin,
-      destination: destination,
-      departure_time: departure_time,
-      arrival_time: arrival_time,
-      next_day_arrival: next_day_arrival,
-      routing: routing,
-      travel_time: to_minutes(travel_time),
-      price: price[1..-1].to_i
-    }
     @errors = errors_for_flight(flight)
     if @errors.none?
       @flights << flight
@@ -264,8 +296,12 @@ post '/flights/add-southwest-flights' do
     end
   end
 
-  session[:success] = "#{counter} flights added"
-  
+  if counter.zero?
+    session[:error] = '0 flights added'
+  else
+    session[:success] = "#{counter} flights added"
+  end
+
   redirect '/flights'
 end
 
@@ -290,22 +326,7 @@ end
 post '/flights/:id' do
   set_flight
 
-  date = params[:date]
-  airline = params[:airline].strip
-  number = params[:number]
-  origin = params[:origin].strip
-  destination = params[:destination].strip
-  departure_time = parse_time(params[:departure_time])
-  arrival_time = parse_time(params[:arrival_time])
-  next_day_arrival = (params[:next_day_arrival] == 'on')
-  routing = params[:routing]
-  travel_time = params[:travel_time]
-  price = price_as_integer(params[:price])
-
-  flight = @flight.merge(date: parse_date(date), airline: airline,
-    number: number, origin: origin, destination: destination,
-    departure_time: departure_time, arrival_time: arrival_time,
-    next_day_arrival: next_day_arrival, routing: routing, travel_time: to_minutes(travel_time), price: price)
+  flight = @flight.merge(flight_params)
 
   @errors = errors_for_flight(flight)
 
