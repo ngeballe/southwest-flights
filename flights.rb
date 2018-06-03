@@ -279,7 +279,7 @@ post '/flights/add-southwest-flights' do
 
   origin, destination = parse_origin_and_destination(flights_info)
 
-  date_string = flights_info[/^[A-Z]{3}\s\d\d$/]
+  date_string = flights_info[/^[A-Z]{3}\s\d{1,2}$/]
 
   counter = 0
 
