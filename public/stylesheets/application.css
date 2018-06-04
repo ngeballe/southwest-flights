@@ -33,6 +33,14 @@ table {
   border-collapse: collapse;
 }
 
+th {
+  background-color: #EEE;
+}
+
+tr:nth-child(even) {
+  background-color: #EEE;
+}
+
 th, td {
   border: 1px solid #AAA;
   padding: 0.5em;
@@ -45,11 +53,6 @@ form.inline {
 
 button {
   font-size: 1em;
-}
-
-form.delete button {
-  /*background-color: hsl(0, 90%, 80%);*/
-  /*background-color: #FAA;*/
 }
 
 button.highlighted {
