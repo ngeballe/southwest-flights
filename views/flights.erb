@@ -1,8 +1,67 @@
-<a href="/flights/new">New Flight</a>
+<a href="/options">More Options</a>
 
 <div class="row">
-  <div class="col-6">
+  <div class="col-8">
     <h1>Add Southwest Flights</h1>
+    <form id="southwest_searches" action="/southwest_searches" method="POST">
+      <ul>
+        <li>
+          <h3><span class="step">Step 1:</span> Enter your flight information:</h3>
+          <p>
+            <label for="departure_airports">Departure Airport Code(s)</label>
+            <input type="text" name="departure_airports" class="uppercase" id="departure_airports" placeholder="SEA">
+            or select your departure city
+            <select id="departure_city">
+              <%= options_for_select(CITY_OPTIONS, '') %>
+            </select>
+          </p>
+          <p>
+            <label for="arrival_airports">Arrival Airport Codes</label>
+            <input type="text" name="arrival_airports" class="uppercase" id="arrival_airports" placeholder="OAK,SFO,SJC">
+            or select your arrival city
+            <select id="arrival_city">
+              <%= options_for_select(CITY_OPTIONS, '') %>
+            </select>
+          </p>
+          <p>
+            <label>Date</label>
+            <select name="month" id="month">
+              <% Date::MONTHNAMES[1..-1].each do |month_name| %>
+                <option value="<%= month_number(month_name) %>"
+                  <%= selected_if_true(month_name == @current_month_name) %>>
+                    <%= month_name %>
+                </option>
+              <% end %>
+            </select>
+            <select name="day" id="day">
+              <% (1..31).each do |day| %>
+                <option <%= selected_if_true(day == Date.today.mday + 1) %>><%= day %></option>
+              <% end %>
+            </select>
+            <select name="year" id="year">
+              <option><%= @current_year %></option>
+              <option><%= @current_year + 1 %></option>
+            </select>
+            <div>
+              <button type="submit" id="generate_southwest_links">Generate Southwest search links</button>
+            </div>
+          </p>
+        </li>
+        <li>
+          <p><span class="step">Step 2</span> Here are the links to Southwest flights.</p>
+          <ul id="southwest_query_links">
+            <% @southwest_query_data.each do |data| %>
+              <li><a href="<%= southwest_query_url(data) %>" target="_blank"><%= southwest_query_link_text(data) %></a></li>
+            <% end %>
+          </ul>
+        </li>
+      </ul>
+    </form>
+
+
+
+    
+
     <form action="/flights/add-southwest-flights" method="post">
       <label for="southwest_flights_information">Paste the whole page here:</label>
       <br>
@@ -11,6 +70,12 @@
         <button type="submit">Submit</button>
       </div>
     </form>
+
+    <div>
+      <form action="/southwest_query_data/delete" method="post">
+        <button type="submit">Delete Southwest search links</button>
+      </form>
+    </div>
 
     <div>
       Sort flights by:
@@ -24,11 +89,11 @@
       </form>
       <form action="/flights" method="get" class="inline">
         <input type="hidden" name="sort" value="takeoff">
-        <button id="sort_by_takeoff" class="<%= highlight_class('takeoff') %>">Takeoff</button>
+        <button id="sort_by_takeoff" class="<%= highlight_class('takeoff') %>">Departure Time</button>
       </form>
       <form action="/flights" method="get" class="inline">
         <input type="hidden" name="sort" value="landing">
-        <button id="sort_by_landing" class="<%= highlight_class('landing') %>">Landing</button>
+        <button id="sort_by_landing" class="<%= highlight_class('landing') %>">Arrival Time</button>
       </form>
     </div>
   </div>

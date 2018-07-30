@@ -2,6 +2,13 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'yaml/store'
 require 'tilt/erubis'
+require 'pry'
+
+CITY_OPTIONS = [ 
+                 'Seattle (SEA)',
+                 'San Francisco Bay Area (OAK, SFO, SJC)',
+                 'Washington, D.C. (DCA, BWI, IAD)'
+               ]
 
 module Southwest
   FLIGHT_ROW_AREA_START = /(?<=Wanna Get Away\n).+/im
@@ -11,7 +18,7 @@ end
 
 configure do
   enable :sessions
-  set :session_key, 'd898w98vf8909sidfuiqwuopffdlcxksjiowqu97ncjh7282'
+  set :session_secret, 'd898w98vf8909sidfuiqwuopffdlcxksjiowqu97ncjh7282'
 end
 
 before do
@@ -19,6 +26,7 @@ before do
   @store.transaction do
     @flights = @store[:flights] || []
   end
+  session[:southwest_query_data] ||= []
 end
 
 after do
@@ -48,6 +56,35 @@ helpers do
       'highlighted'
     else
       ''
+    end
+  end
+
+  def month_number(month_name)
+    Date::MONTHNAMES.index(month_name)
+  end
+
+  def selected_if_true(expression)
+    expression ? 'selected' : ''
+  end
+
+  def southwest_query_url(data)
+    search_url = "https://www.southwest.com/air/booking/select.html?"
+    search_url << "originationAirportCode=#{data[:origin]}"
+    search_url << "&destinationAirportCode=#{data[:destination]}"
+    search_url << "&returnAirportCode=&departureDate=#{data[:date_string]}"
+    search_url << <<~DOC.strip
+    &departureTimeOfDay=ALL_DAY&returnDate=&returnTimeOfDay=ALL_DAY&adultPassengersCount=1&seniorPassengersCount=0&fareType=USD&passengerType=ADULT&tripType=oneway&promoCode=&reset=true&redirectToVision=true&int=HOMEQBOMAIR&leapfrogRequest=true
+    DOC
+  end
+
+  def southwest_query_link_text(data)
+    "Flights from #{data[:origin]} to #{data[:destination]} on #{data[:date_string]}"
+  end
+
+  def options_for_select(option_array, prompt = 'Choose one')
+    option_array = [prompt] + option_array if prompt
+    option_array.reduce('') do |html, option|
+      html + "<option>#{option}</option>"
     end
   end
 end
@@ -224,11 +261,19 @@ def flight_rows(southwest_flights_info)
   flight_row_area.split(Southwest::FLIGHT_ROW_DELIMITER)
 end
 
+def date_for_southwest_query(month, day, year)
+  format('%4d-%02d-%02d', year, month, day)
+end
+
 get '/' do
   redirect '/flights'
 end
 
 get '/flights' do
+  @current_year = Date.today.year
+  @current_month_name = Date.today.strftime('%B')
+  @southwest_query_data = session[:southwest_query_data] || []
+
   case params[:sort]
   when 'price'
     @flights.sort_by! { |flight| flight[:price] }
@@ -345,5 +390,37 @@ post '/flights/:id/delete' do
   set_flight
   @flights.delete(@flight)
   session[:success] = 'Flight deleted.'
+  redirect '/flights'
+end
+
+get '/options' do
+  erb :options
+end
+
+post '/southwest_searches' do
+  month = params[:month]
+  day = params[:day]
+  year = params[:year]
+  departure_airports = params[:departure_airports].split(",")
+                                                  .map(&:upcase)
+  arrival_airports = params[:arrival_airports].split(",")
+                                                .map(&:upcase)
+  combinations = departure_airports.product(arrival_airports)
+  date = date_for_southwest_query(month, day, year)
+
+  combinations.each do |departure_airport, arrival_airport|
+    data_for_one_query = {
+      origin: departure_airport,
+      destination: arrival_airport,
+      date_string: date
+    }
+    session[:southwest_query_data] << data_for_one_query
+  end
+
+  redirect '/flights'
+end
+
+post '/southwest_query_data/delete' do
+  session[:southwest_query_data].clear
   redirect '/flights'
 end

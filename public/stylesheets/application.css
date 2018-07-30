@@ -1,5 +1,6 @@
 body {
   font-family: Arial, sans-serif;
+  padding: 0 1em;
 }
 
 div.col-6 {
@@ -8,6 +9,10 @@ div.col-6 {
 }
 
 h1 {
+  font-size: 1.3em;
+}
+
+h2 {
   font-size: 1.1em;
 }
 
@@ -58,3 +63,21 @@ button {
 button.highlighted {
   background-color: hsl(20, 100%, 65%);
 }
+
+input {
+  font-size: 0.9em;
+}
+
+input.uppercase {
+  text-transform: uppercase;
+}
+
+select {
+  font-size: 0.95em;
+}
+
+/*span.step {
+  font-weight: bold;
+  text-decoration: underline;
+}
+*/

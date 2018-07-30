@@ -43,7 +43,25 @@ $(function() {
 
     $('#price').val(price);
   });
+
+  $('select#departure_city').change(function() {
+    put_airports_in_input(this, '#departure_airports');
+  });
+
+  $('select#arrival_city').change(function() {
+    put_airports_in_input(this, '#arrival_airports');
+  });
 });
+
+function date_for_southwest_query(year, month, day) {
+  if (day.length == 1) {
+    day = "0" + day;
+  }
+  if (month.length == 1) {
+    month = "0" + month;
+  }
+  return year + "-" + month + "-" + day;
+}
 
 function convert_to_time_format(time_string) {
   var hour = time_string.split(":")[0];
@@ -58,4 +76,11 @@ function convert_to_time_format(time_string) {
   if (hour < 10) { hour = "0" + hour };
 
   return hour + ":" + minute;
+}
+
+function put_airports_in_input(select_element, input_field_id) {
+  var selected_city = $(select_element).val();
+  var airport_string = selected_city.match(/(?<=\().+(?=\))/)[0];
+  airport_string = airport_string.replace(/\s/g, '');
+  $(input_field_id).val(airport_string);
 }
