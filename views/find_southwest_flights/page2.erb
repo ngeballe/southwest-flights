@@ -1,0 +1,43 @@
+<h1>Find Southwest Flights</h1>
+
+<h2>Step 2: Get information from Southwest</h2>
+
+<div class="row">
+  <div class="col-6">
+    Here are links that will take you to the Southwest flights you want to look for. Add each set of flights to your flights comparison table, following the instructions below:
+
+    <ul id="southwest_query_links">
+      <% @southwest_query_data.each do |data| %>
+        <li><a href="<%= southwest_query_url(data) %>" target="_blank"><%= southwest_query_link_text(data) %></a></li>
+      <% end %>
+    </ul>
+
+    <ol>
+      <li>Click on the link. It will open in a new tab or window.</li>
+      <li>Select the whole page (Edit, Select All or Command+A)</li>
+      <li>Copy the page (Edit, Copy or Command+C)</li>
+      <li>Come back to this page</li>
+      <li>Paste the results into the box below</li>
+      <li>Click the "Submit" button to add the results</li>
+    </ol>
+  </div>  
+</div>
+<div class="row">
+  <div class="col-6">
+    <form action="/flights/add-southwest-flights" method="post">
+      <input type="hidden" name="origin" value="flights-finder-page2">
+      <label for="southwest_flights_information">Paste the whole page of Southwest flights here:</label>
+      <br>
+      <textarea name="southwest_flights_information"></textarea>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="col-6">
+    <h3>When you're finished adding flights, go to the <a href="/flights">flights comparison table</a>.</h3>
+  </div>
+</div>
+

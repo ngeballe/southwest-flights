@@ -1,0 +1,49 @@
+<h1>Find Southwest Flights</h1>
+
+<h2>Step 1: Enter your flight information</h3>
+
+<div class="row">
+  <div class="col-8">
+    <form id="generate_southwest_links" action="/flights/southwest/find/pages/2" method="POST">
+      <div>
+        Select your departure city
+        <select id="departure_city">
+          <%= options_for_select(CITY_OPTIONS, '') %>
+        </select>
+        or enter the airport codes (separated by commas):
+        <input type="text" name="departure_airports" class="uppercase" id="departure_airports" placeholder="SEA">
+      </div>
+      <div>
+        Select your arrival city
+        <select id="arrival_city">
+          <%= options_for_select(CITY_OPTIONS, '') %>
+        </select>
+        or enter the airport codes (separated by commas):
+        <input type="text" name="arrival_airports" class="uppercase" id="arrival_airports" placeholder="OAK,SFO,SJC">
+      </div>
+      <div>
+        <label>Date</label>
+        <select name="month" id="month">
+          <% Date::MONTHNAMES[1..-1].each do |month_name| %>
+            <option value="<%= month_number(month_name) %>"
+              <%= selected_if_true(month_name == current_month_name) %>>
+                <%= month_name %>
+            </option>
+          <% end %>
+        </select>
+        <select name="day" id="day">
+          <% (1..31).each do |day| %>
+            <option <%= selected_if_true(day == Date.today.mday + 1) %>><%= day %></option>
+          <% end %>
+        </select>
+        <select name="year" id="year">
+          <option><%= current_year %></option>
+          <option><%= current_year + 1 %></option>
+        </select>
+      </div>
+      <div>
+        <button type="submit" id="generate_southwest_links_button" class="btn-large">Continue</button>
+      </div>
+    </form>
+  </div>
+</div>

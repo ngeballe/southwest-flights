@@ -10,6 +10,19 @@ $(function() {
     }
   });
 
+  $('form#generate_southwest_links').submit(function(event) {
+    // event.preventDefault()
+    event.preventDefault();
+    event.stopPropagation();
+    if ($('#departure_airports').val() == '') {
+      alert('You must choose at least one departure airport or city.');
+    } else if ($('#arrival_airports').val() == '') {
+      alert('You must choose at least one arrival airport or city.');
+    } else {
+      this.submit();
+    }
+  });
+
   $('textarea#southwest_flight').blur(function() {
     var text = $('#southwest_flight').val();
 

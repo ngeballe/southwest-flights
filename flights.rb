@@ -2,7 +2,8 @@ require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'yaml/store'
 require 'tilt/erubis'
-require 'pry'
+
+require_relative 'database_persistence'
 
 CITY_OPTIONS = [ 
                  'Seattle (SEA)',
@@ -26,6 +27,7 @@ before do
   @store.transaction do
     @flights = @store[:flights] || []
   end
+  # @storage = DatabasePersistence.new(logger)
   session[:southwest_query_data] ||= []
 end
 
@@ -33,6 +35,7 @@ after do
   @store.transaction do
     @store[:flights] = @flights
   end
+  # @storage.disconnect
 end
 
 helpers do
@@ -78,7 +81,8 @@ helpers do
   end
 
   def southwest_query_link_text(data)
-    "Flights from #{data[:origin]} to #{data[:destination]} on #{data[:date_string]}"
+    date_formatted = Date.parse(data[:date_string]).strftime('%A, %B %-d')
+    "Flights from #{data[:origin]} to #{data[:destination]} on #{date_formatted}"
   end
 
   def options_for_select(option_array, prompt = 'Choose one')
@@ -148,6 +152,14 @@ end
 
 def military_time(time)
   time.strftime('%H:%M')
+end
+
+def current_year
+  Date.today.year
+end
+
+def current_month_name
+  Date.today.strftime('%B')
 end
 
 def next_id(collection)
@@ -265,15 +277,50 @@ def date_for_southwest_query(month, day, year)
   format('%4d-%02d-%02d', year, month, day)
 end
 
+def reset_southwest_query_data
+  session[:southwest_query_data] = []
+end
+
 get '/' do
-  redirect '/flights'
+  redirect '/flights/southwest/find/pages/1'
+end
+
+get '/flights/southwest/find/pages/1' do
+  reset_southwest_query_data
+
+  erb 'find_southwest_flights/page1'.to_sym
+end
+
+post '/flights/southwest/find/pages/2' do
+  reset_southwest_query_data
+
+  month = params[:month]
+  day = params[:day]
+  year = params[:year]
+  departure_airports = params[:departure_airports].split(",")
+                                                  .map(&:upcase)
+  arrival_airports = params[:arrival_airports].split(",")
+                                                .map(&:upcase)
+  combinations = departure_airports.product(arrival_airports)
+  date = date_for_southwest_query(month, day, year)
+
+  combinations.each do |departure_airport, arrival_airport|
+    data_for_one_query = {
+      origin: departure_airport,
+      destination: arrival_airport,
+      date_string: date
+    }
+    session[:southwest_query_data] << data_for_one_query
+  end
+  redirect '/flights/southwest/find/pages/2'
+end
+
+get '/flights/southwest/find/pages/2' do
+  @southwest_query_data = session[:southwest_query_data] || []
+  erb 'find_southwest_flights/page2'.to_sym
 end
 
 get '/flights' do
-  @current_year = Date.today.year
-  @current_month_name = Date.today.strftime('%B')
-  @southwest_query_data = session[:southwest_query_data] || []
-
   case params[:sort]
   when 'price'
     @flights.sort_by! { |flight| flight[:price] }
@@ -347,7 +394,11 @@ post '/flights/add-southwest-flights' do
     session[:success] = "#{counter} flights added"
   end
 
-  redirect '/flights'
+  if params[:origin] == "flights-finder-page2"
+    redirect '/flights/southwest/find/pages/2'
+  else
+    redirect '/flights'
+  end
 end
 
 post '/flights/delete_all' do
@@ -397,30 +448,3 @@ get '/options' do
   erb :options
 end
 
-post '/southwest_searches' do
-  month = params[:month]
-  day = params[:day]
-  year = params[:year]
-  departure_airports = params[:departure_airports].split(",")
-                                                  .map(&:upcase)
-  arrival_airports = params[:arrival_airports].split(",")
-                                                .map(&:upcase)
-  combinations = departure_airports.product(arrival_airports)
-  date = date_for_southwest_query(month, day, year)
-
-  combinations.each do |departure_airport, arrival_airport|
-    data_for_one_query = {
-      origin: departure_airport,
-      destination: arrival_airport,
-      date_string: date
-    }
-    session[:southwest_query_data] << data_for_one_query
-  end
-
-  redirect '/flights'
-end
-
-post '/southwest_query_data/delete' do
-  session[:southwest_query_data].clear
-  redirect '/flights'
-end

@@ -3,9 +3,18 @@ body {
   padding: 0 1em;
 }
 
+div.row {
+  width: 100%;
+  clear: both;
+}
+
 div.col-6 {
   width: 50%;
   float: left;
+}
+
+form div {
+  padding: 0.5em;
 }
 
 h1 {
@@ -76,8 +85,12 @@ select {
   font-size: 0.95em;
 }
 
-/*span.step {
-  font-weight: bold;
-  text-decoration: underline;
+.btn-large {
+  height: 1.6em;
+  font-size: 1.5em;
 }
-*/
+
+div.padded {
+  padding: 1em;
+}
+
