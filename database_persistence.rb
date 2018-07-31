@@ -1,16 +1,19 @@
 require 'pg'
 
 class DatabasePersistence
+  attr_reader :errors
+
   def initialize(logger)
     @logger = logger
     @db = if Sinatra::Base.production?
             PG.connect(ENV['DATABASE_URL'])
           else
-            PG.connect(dbname: 'todos')
+            PG.connect(dbname: 'flights')
           end
   end
 
   def query(statement, *params)
+    @errors = []
     @logger.info "#{statement}: #{params}"
     @db.exec_params(statement, params)
   end
@@ -22,7 +25,12 @@ class DatabasePersistence
       INSERT INTO flights (date, airline_id, flight_number, origin, destination, departure_time, arrival_time, routing, travel_time, price)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     SQL
-    query(sql, flight[:date], airline_id, flight[:flight_number], flight[:origin], flight[:destination], flight[:departure_time], flight[:arrival_time], flight[:routing], flight[:travel_time], flight[:price])
+    begin
+      query(sql, flight[:date], airline_id, flight[:flight_number], flight[:origin], flight[:destination], flight[:departure_time], flight[:arrival_time], flight[:routing], flight[:travel_time], flight[:price])
+    rescue PG::Error => e
+      @logger.info "Flight #{flight} not added due to SQL error: #{e}"
+      @errors << e
+    end
   end
 
   def find_flight(id)

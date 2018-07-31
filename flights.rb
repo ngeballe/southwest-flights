@@ -350,7 +350,11 @@ post '/flights' do
     erb :new_flight
   else
     @storage.create_flight(flight)
-    session[:success] = 'Flight information added.'
+    if @storage.errors.any?
+      session[:error] = @storage.error_message
+    else
+      session[:success] = 'Flight information added.'
+    end
     redirect '/flights'
   end
 end
@@ -385,12 +389,15 @@ post '/flights/add-southwest-flights' do
     @errors = errors_for_flight(flight)
     if @errors.none?
       @storage.create_flight(flight)
-      counter += 1
+      if @storage.errors.none?
+        session[:success] = 'Flight information added.'
+        counter += 1
+      end
     end
   end
 
   if counter.zero?
-    session[:error] = '0 flights added'
+    session[:error] = '0 flights added. Did you add flights that were already on your list?'
   else
     session[:success] = "#{counter} flights added"
   end
