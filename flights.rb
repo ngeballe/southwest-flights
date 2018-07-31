@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'tilt/erubis'
+require 'pry'
 
 require_relative 'database_persistence'
 
@@ -86,6 +87,15 @@ helpers do
     search_url << <<~DOC.strip
     &departureTimeOfDay=ALL_DAY&returnDate=&returnTimeOfDay=ALL_DAY&adultPassengersCount=1&seniorPassengersCount=0&fareType=USD&passengerType=ADULT&tripType=oneway&promoCode=&reset=true&redirectToVision=true&int=HOMEQBOMAIR&leapfrogRequest=true
     DOC
+  end
+
+  def southwest_query_url_from_flight(flight)
+    data = { origin: flight[:origin],
+             destination: flight[:destination],
+             date_string: flight[:date].to_s }
+    # {:origin=>"OAK", :destination=>"DCA", :date_string=>"2018-08-01"}
+    southwest_query_url(data)
+
   end
 
   def southwest_query_link_text(data)
@@ -294,6 +304,7 @@ end
 
 post '/flights/southwest/find/pages/2' do
   reset_southwest_query_data
+  @storage.delete_all_flights
 
   month = params[:month]
   day = params[:day]

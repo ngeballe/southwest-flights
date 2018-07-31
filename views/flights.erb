@@ -4,7 +4,6 @@
   <div class="col-8">
     <div class="padded">
     </div>
-
     <div>
       Sort flights by:
       <form action="/flights" method="get" class="inline">
@@ -32,31 +31,33 @@
   </div>
 </div>
 
-<table>
-  <thead>
-    <tr>
-      <% FLIGHT_ATTRIBUTES.each do |attribute| %>
-        <th><%= attribute %></th>
-      <% end %>
-    </tr>
-  </thead>
-  <tbody>
-    <% @flights.each do |flight| %>
+<div class="row">
+  <table>
+    <thead>
       <tr>
-        <td><%= format_date flight[:date] %></td>
-        <td><%= flight[:airline] %></td>
-        <td><%= flight[:flight_number] %></td>
-        <td><%= flight[:origin] %></td>
-        <td><%= flight[:destination] %></td>
-        <td><%= format_time flight[:departure_time] %></td>
-        <td><%= format_arrival_time(flight) %></td>
-        <td><%= flight[:routing] %></td>
-        <td><%= format_travel_time(flight) %></td>
-        <td>$<%= format_price(flight) %></td>
-        <td><a href="/flights/<%= flight[:id] %>">View</a></td>
+        <% FLIGHT_ATTRIBUTES.each do |attribute| %>
+          <th><%= attribute %></th>
+        <% end %>
       </tr>
-    <% end %>
-  </tbody>
-</table>
-
+    </thead>
+    <tbody>
+      <% @flights.each do |flight| %>
+        <tr>
+          <td><%= format_date flight[:date] %></td>
+          <td><%= flight[:airline] %></td>
+          <td><%= flight[:flight_number] %></td>
+          <td><%= flight[:origin] %></td>
+          <td><%= flight[:destination] %></td>
+          <td><%= format_time flight[:departure_time] %></td>
+          <td><%= format_arrival_time(flight) %></td>
+          <td><%= flight[:routing] %></td>
+          <td><%= format_travel_time(flight) %></td>
+          <td>$<%= format_price(flight) %></td>
+          <td><a href="/flights/<%= flight[:id] %>">View</a></td>
+          <td><a href="<%= southwest_query_url_from_flight(flight) %>" target="_blank">View on southwest.com</a></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
