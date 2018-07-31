@@ -26,7 +26,7 @@
         <select name="month" id="month">
           <% Date::MONTHNAMES[1..-1].each do |month_name| %>
             <option value="<%= month_number(month_name) %>"
-              <%= selected_if_true(month_name == current_month_name) %>>
+              <%= selected_if_true(month_name == (Date.today + 1).strftime('%B')) %>>
                 <%= month_name %>
             </option>
           <% end %>

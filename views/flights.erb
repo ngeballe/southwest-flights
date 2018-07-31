@@ -45,14 +45,14 @@
       <tr>
         <td><%= format_date flight[:date] %></td>
         <td><%= flight[:airline] %></td>
-        <td><%= flight[:number] %></td>
+        <td><%= flight[:flight_number] %></td>
         <td><%= flight[:origin] %></td>
         <td><%= flight[:destination] %></td>
         <td><%= format_time flight[:departure_time] %></td>
         <td><%= format_arrival_time(flight) %></td>
         <td><%= flight[:routing] %></td>
         <td><%= format_travel_time(flight) %></td>
-        <td>$<%= flight[:price] %></td>
+        <td>$<%= format_price(flight) %></td>
         <td><a href="/flights/<%= flight[:id] %>">View</a></td>
       </tr>
     <% end %>

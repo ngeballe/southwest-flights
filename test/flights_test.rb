@@ -72,7 +72,7 @@ class FlightsTest < Minitest::Test
 
     assert_includes last_response.body, 'Sun., Mar. 25'
     assert_includes last_response.body, flight_attributes[:airline]
-    assert_includes last_response.body, flight_attributes[:number]
+    assert_includes last_response.body, flight_attributes[:flight_number]
     assert_includes last_response.body, flight_attributes[:origin]
     assert_includes last_response.body, flight_attributes[:destination]
     assert_includes last_response.body, flight_attributes[:departure_time]
@@ -202,7 +202,7 @@ class FlightsTest < Minitest::Test
     assert_includes last_response.body, 'Please enter the airline name.'
 
     assert_includes last_response.body, '  '
-    assert_includes last_response.body, flight_attributes[:number]
+    assert_includes last_response.body, flight_attributes[:flight_number]
     assert_includes last_response.body, flight_attributes[:destination]
     assert_includes last_response.body, flight_attributes[:departure_time]
   end

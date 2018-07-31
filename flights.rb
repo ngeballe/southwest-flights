@@ -1,9 +1,19 @@
 require 'sinatra'
-require 'sinatra/reloader' if development?
-require 'yaml/store'
 require 'tilt/erubis'
 
 require_relative 'database_persistence'
+
+configure do
+  enable :sessions
+  set :session_secret, 'd898w98vf8909sidfuiqwuopffdlcxksjiowqu97ncjh7282'
+end
+
+configure(:development) do
+  require 'sinatra/reloader'
+  also_reload "database_persistence.rb"
+end
+
+FLIGHT_ATTRIBUTES = ['Date', 'Airline', 'Flight Number', 'Origin', 'Destination', 'Departure Time', 'Arrival Time', 'Routing', 'Travel Time', 'Price']
 
 CITY_OPTIONS = [ 
                  'Seattle (SEA)',
@@ -17,30 +27,28 @@ module Southwest
   FLIGHT_NUMBER_REGEX = /(?<=^#\s).+(?=Nonstop|\d+ stop)/
 end
 
-configure do
-  enable :sessions
-  set :session_secret, 'd898w98vf8909sidfuiqwuopffdlcxksjiowqu97ncjh7282'
-end
-
 before do
-  @store = YAML::Store.new data_path
-  @store.transaction do
-    @flights = @store[:flights] || []
-  end
-  # @storage = DatabasePersistence.new(logger)
+  @storage = DatabasePersistence.new(logger)
+  @flights = @storage.all_flights
   session[:southwest_query_data] ||= []
 end
 
 after do
-  @store.transaction do
-    @store[:flights] = @flights
-  end
-  # @storage.disconnect
+  @storage.disconnect
 end
 
 helpers do
   def format_date(date)
     date.strftime('%a., %b. %-d') if date
+  end
+
+  def format_price(flight)
+    price = flight[:price]
+    if price == price.round
+      format('%d', price)
+    else
+      format('%.2f', price)
+    end
   end
 
   def format_arrival_time(flight)
@@ -93,8 +101,6 @@ helpers do
   end
 end
 
-FLIGHT_ATTRIBUTES = ['Date', 'Airline', 'Flight Number', 'Origin', 'Destination', 'Departure Time', 'Arrival Time', 'Routing', 'Travel Time', 'Price']
-
 def data_path
   if ENV['RACK_ENV'] == 'test'
     'test/data.yml'
@@ -121,7 +127,7 @@ def invalid_date?(flight)
 end
 
 def set_flight
-  @flight = @flights.detect { |flight| flight[:id] == params[:id].to_i }
+  @flight = @storage.find_flight(params[:id].to_i)
 end
 
 def parse_time(time_string, next_day = false)
@@ -182,8 +188,6 @@ end
 
 def flight_unique?(flight)
   @flights.none? do |existing_flight|
-    # existing_flight
-    # all but ID same?
     same_values_except_id?(flight, existing_flight)
   end
 end
@@ -226,10 +230,9 @@ def parse_flight_from_southwest_page_row(row, origin, destination, date_string)
   return if price.empty?
 
   {
-    id: next_id(@flights),
     date: date,
     airline: 'Southwest',
-    number: flight_number,
+    flight_number: flight_number,
     origin: origin,
     destination: destination,
     departure_time: departure_time,
@@ -245,7 +248,7 @@ def flight_params
   {
     date: parse_date(params[:date]),
     airline: params[:airline].strip,
-    number: params[:number],
+    flight_number: params[:flight_number],
     origin: params[:origin].strip,
     destination: params[:destination].strip,
     departure_time: parse_time(params[:departure_time]),
@@ -259,9 +262,7 @@ end
 
 def parse_origin_and_destination(southwest_flights_info)
   southwest_flights_info[/.+([A-Z]{3}) to .+([A-Z]{3})/]
-  # origin = $1
   origin = Regexp.last_match[1]
-  # destination = $2
   destination = Regexp.last_match[2]
 
   [origin, destination]
@@ -340,7 +341,7 @@ get '/flights/new' do
 end
 
 post '/flights' do
-  flight = flight_params.merge(id: next_id(@flights))
+  flight = flight_params
 
   @errors = errors_for_flight(flight)
   if @errors.any?
@@ -348,7 +349,7 @@ post '/flights' do
     session[:error] = erb :flight_errors, layout: nil
     erb :new_flight
   else
-    @flights << flight
+    @storage.create_flight(flight)
     session[:success] = 'Flight information added.'
     redirect '/flights'
   end
@@ -383,7 +384,7 @@ post '/flights/add-southwest-flights' do
 
     @errors = errors_for_flight(flight)
     if @errors.none?
-      @flights << flight
+      @storage.create_flight(flight)
       counter += 1
     end
   end
@@ -402,7 +403,7 @@ post '/flights/add-southwest-flights' do
 end
 
 post '/flights/delete_all' do
-  @flights = []
+  @storage.delete_all_flights
   session[:success] = 'Flights have all been deleted'
   redirect '/flights'
 end
@@ -431,7 +432,7 @@ post '/flights/:id' do
     session[:error] = erb :flight_errors, layout: nil
     erb :edit_flight
   else
-    @flight.merge!(flight)
+    @storage.update_flight(params[:id].to_i, flight)
     session[:success] = 'Flight information updated.'
     redirect '/flights'
   end
@@ -439,7 +440,7 @@ end
 
 post '/flights/:id/delete' do
   set_flight
-  @flights.delete(@flight)
+  @storage.delete_flight(params[:id].to_i)
   session[:success] = 'Flight deleted.'
   redirect '/flights'
 end
