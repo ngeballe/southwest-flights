@@ -1,6 +1,5 @@
 require 'sinatra'
 require 'tilt/erubis'
-require 'pry'
 
 require_relative 'database_persistence'
 
@@ -93,9 +92,7 @@ helpers do
     data = { origin: flight[:origin],
              destination: flight[:destination],
              date_string: flight[:date].to_s }
-    # {:origin=>"OAK", :destination=>"DCA", :date_string=>"2018-08-01"}
     southwest_query_url(data)
-
   end
 
   def southwest_query_link_text(data)
