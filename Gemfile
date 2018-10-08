@@ -11,3 +11,8 @@ group :production do
 end
 
 gem 'pg'
+
+group :test, :development do
+  gem 'minitest'
+  gem 'rack-test'
+end

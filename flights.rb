@@ -1,6 +1,6 @@
 require 'sinatra'
 require 'tilt/erubis'
-
+  
 require_relative 'database_persistence'
 
 configure do
@@ -9,6 +9,7 @@ configure do
 end
 
 configure(:development) do
+  require 'pry'
   require 'sinatra/reloader'
   also_reload "database_persistence.rb"
 end
@@ -22,9 +23,16 @@ CITY_OPTIONS = [
                ]
 
 module Southwest
-  FLIGHT_ROW_AREA_START = /(?<=Wanna Get Away\n).+/im
-  FLIGHT_ROW_DELIMITER = /\n(?=#\s?\d+)/
-  FLIGHT_NUMBER_REGEX = /(?<=^#\s).+(?=Nonstop|\d+ stop)/
+  # FLIGHT_ROW_AREA_START = /(?<=Wanna Get Away\n).+/im
+  # FLIGHT_ROW_AREA_START = /(?<=Wanna Get Away).+/im
+  # FLIGHT_ROW_AREA_START = /\d{1,2}:\d{2}.+/im
+  FLIGHT_ROW_AREA_START = /^#\s\d+.+\$\d+$|^#\s\d+.+\d left$/m
+  # FLIGHT_ROW_DELIMITER = /\n(?=#\s?\d+)/
+  # FLIGHT_ROW_DELIMITER = /(?<=\d)\n(?=\d{1,2}:\d\d)/
+  FLIGHT_ROW_DELIMITER = /(?<=\d)\n(?=\d{1,2}:\d\d)|(?<=Sold Out)\n(?=\d{1,2}:\d\d)|\n(?=#)/
+  # FLIGHT_NUMBER_REGEX = /(?<=^#\s).+(?=Nonstop|\d+ stop)/
+  # FLIGHT_NUMBER_REGEX = /(?<=M\n).+(?=Nonstop|\d+ stop)/mi
+  FLIGHT_NUMBER_REGEX = /.+?(?=Nonstop|\d stop)/mi
 end
 
 before do
@@ -106,13 +114,9 @@ helpers do
       html + "<option>#{option}</option>"
     end
   end
-end
 
-def data_path
-  if ENV['RACK_ENV'] == 'test'
-    'test/data.yml'
-  else
-    'data.yml'
+  def checked_if_true(statement)
+    statement ? 'checked' : ''
   end
 end
 
@@ -125,7 +129,7 @@ def errors_for_flight(flight)
   errors << 'Please enter the departure time.' if flight[:departure_time] == ''
   errors << 'Please enter the arrival time' if flight[:arrival_time] == ''
   errors << 'Please enter the price.' if ['', nil].include?(flight[:price])
-  errors << 'That flight is already on your list.' unless flight_unique?(flight)
+  errors << 'That flight is already on your list.' unless @storage.unique_flight?(flight)
   errors
 end
 
@@ -187,15 +191,9 @@ end
 
 def price_as_integer(price)
   if price && !price.empty?
-    price = price[1..-1].to_i
+    price = price.to_i
   else
     price = nil
-  end
-end
-
-def flight_unique?(flight)
-  @flights.none? do |existing_flight|
-    same_values_except_id?(flight, existing_flight)
   end
 end
 
@@ -209,7 +207,10 @@ end
 def parse_flight_from_southwest_page_row(row, origin, destination, date_string)
   date = Date.parse(date_string) if date_string
 
-  flight_numbers = row.scan(Southwest::FLIGHT_NUMBER_REGEX)
+  flight_numbers_string = row[Southwest::FLIGHT_NUMBER_REGEX]
+
+  flight_numbers = flight_numbers_string.scan(/\d+/)
+
   flight_number = flight_numbers.join(', ')
 
   time_regex = /\d+:\d+\s?[AP]M.?+Next Day|\d+:\d+\s?[AP]M/m
@@ -268,7 +269,26 @@ def flight_params
 end
 
 def parse_origin_and_destination(southwest_flights_info)
-  southwest_flights_info[/.+([A-Z]{3}) to .+([A-Z]{3})/]
+  regex = /From: Enter departure city or airport code.+([A-Z]{3})\nTo: Enter arrival city or airport code.+?([A-Z]{3})/m
+  regex2 = /Depart:\s([A-Z]{3})([A-Z]{3})/
+
+  southwest_flights_info[regex] || southwest_flights_info[regex2]
+  # p southwest_flights_info[regex]
+  # p Regexp.last_match[1]
+  # p Regexp.last_match[2]
+  # if southwest_flights_info[regex].nil?
+  #   puts "\n" * 5
+  #   puts southwest_flights_info
+  #   p regex
+  #   p regex2
+  #   p southwest_flights_info[regex]
+  #   p southwest_flights_info[regex2]
+  #   p origin = Regexp.last_match[1]
+  #   p destination = Regexp.last_match[2]
+  #   p [origin, destination]
+  #   fail
+  # end
+
   origin = Regexp.last_match[1]
   destination = Regexp.last_match[2]
 
@@ -359,7 +379,7 @@ post '/flights' do
   else
     @storage.create_flight(flight)
     if @storage.errors.any?
-      session[:error] = @storage.error_message
+      session[:error] = @storage.errors.join("\n")
     else
       session[:success] = 'Flight information added.'
     end
@@ -375,7 +395,6 @@ post '/flights/add-southwest-flights' do
   flights_info = params[:southwest_flights_information]
 
   if flights_info.strip.empty?
-    status 422
     session[:error] = 'Invalid data.'
     redirect '/flights'
   end
@@ -395,6 +414,7 @@ post '/flights/add-southwest-flights' do
     next unless flight
 
     @errors = errors_for_flight(flight)
+
     if @errors.none?
       @storage.create_flight(flight)
       if @storage.errors.none?
@@ -464,3 +484,7 @@ get '/options' do
   erb :options
 end
 
+post '/delete_all_data' do
+  return if Sinatra::Base.production?
+  @storage.delete_all_data
+end
