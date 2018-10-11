@@ -1,5 +1,3 @@
-<h1>Test</h1>
-
 <a href="/options">More Options</a>
 
 <div class="row">
@@ -8,21 +6,23 @@
     </div>
     <div>
       Sort flights by:
-      <form action="/flights" method="get" class="inline">
-        <input type="hidden" name="sort" value="price">
-        <button type="submit" class="<%= highlight_class('price') %>">Price</button>
-      </form>
-      <form action="/flights" method="get" class="inline">
-        <input type="hidden" name="sort" value="duration">
-        <button id="submit" class="<%= highlight_class('duration') %>">Duration</button>
-      </form>
-      <form action="/flights" method="get" class="inline">
-        <input type="hidden" name="sort" value="takeoff">
-        <button id="sort_by_takeoff" class="<%= highlight_class('takeoff') %>">Departure Time</button>
-      </form>
-      <form action="/flights" method="get" class="inline">
-        <input type="hidden" name="sort" value="landing">
-        <button id="sort_by_landing" class="<%= highlight_class('landing') %>">Arrival Time</button>
+      <form action="/flights" method="get" class="inline" id="sort-form">
+        <input type="hidden" name="sort" value="<%= params[:sort] %>" id="sort">
+        <button id="sort_by_price" type="submit" class="sort-criterion <%= highlight_class('price') %>">Price</button>
+        <button id="sort_by_duration" type="submit" class="sort-criterion <%= highlight_class('duration') %>">Duration</button>
+        <button id="sort_by_takeoff" type="submit" class="sort-criterion <%= highlight_class('takeoff') %>">Departure Time</button>
+        <button id="sort_by_landing" type="submit" class="sort-criterion <%= highlight_class('landing') %>">Arrival Time</button>
+        <div>
+        <strong>Filters:</strong>
+        Maximum Price
+        <input type="number" name="maxPrice" class="filter" id="maxPrice" value="<%= params[:maxPrice] %>">
+        Maximum Duration (hours)
+        <input type="number" step="0.01" name="maxDuration" class="filter" id="maxDuration" value="<%= params[:maxDuration] %>">
+        Depart after
+        <input type="time" step="0.01" name="minDepartureTime" class="filter" id="minDepartureTime" value="<%= params[:minDepartureTime] %>">
+        Arrive before
+        <input type="time" step="0.01" name="maxArrivalTime" class="filter" id="maxArrivalTime" value="<%= params[:maxArrivalTime] %>">
+        <button type="submit">Submit</button>
       </form>
     </div>
   </div>

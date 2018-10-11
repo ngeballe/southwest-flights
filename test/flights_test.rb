@@ -646,15 +646,22 @@ class FlightsTest < Minitest::Test
   end
 
   def test_filter_by_price
-    skip
-    post '/flights', flight_attributes.merge(price: '$300')
-    post '/flights', flight_attributes.merge(price: '$100')
-    post '/flights', flight_attributes.merge(price: '$200')
+    post '/flights', flight_attributes.merge(price: '300')
+    post '/flights', flight_attributes.merge(flight_number: '2', price: '100')
+    post '/flights', flight_attributes.merge(flight_number: '3', price: '200')
 
     get '/flights?sort=price&maxPrice=200'
 
     assert_equal 200, last_response.status
 
+    puts last_response.body
+
     assert_match /\$100.*\$200.*/m, last_response.body
+
+    refute_includes last_response.body, '$300'
+
+    assert_includes last_response.body, 'Filter by:'
+    assert_includes last_response.body, 'Price must be less than'
+    assert_includes last_response.body, %q(<input type="number" name="maximumPrice")
   end
 end

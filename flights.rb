@@ -309,6 +309,10 @@ def reset_southwest_query_data
   session[:southwest_query_data] = []
 end
 
+def param_present?()
+  
+end
+
 get '/' do
   redirect '/flights/southwest/find/pages/1'
 end
@@ -350,6 +354,27 @@ get '/flights/southwest/find/pages/2' do
 end
 
 get '/flights' do
+  throw params if params[:sort] == 'landing' # == 'rohan'
+
+  # @word = params[:word]
+
+  present_params = params.reject { |k, v| v.empty? }
+  if present_params != params
+    present_param_pairs = present_params.map do |name, 
+      value|
+      "#{name}=#{value}"
+    end
+    present_params_string = present_param_pairs.join('&')
+    # throw present_params_string
+    redirect "/flights?#{present_params_string}"
+  end
+
+  # if params[:maxPrice] &. empty?
+  #   throw params
+  #   # redirect "/flights?sort=#{params[:sort]}"
+  # elsif params[:max]
+  # end
+
   case params[:sort]
   when 'price'
     @flights.sort_by! { |flight| flight[:price] }
@@ -360,6 +385,21 @@ get '/flights' do
   when 'landing'
     @flights.sort_by! { |flight| flight[:arrival_time] }
   end
+
+  if params[:maxPrice]
+    @flights.reject! { |flight| flight[:price] > params[:maxPrice].to_i }
+  end
+
+  if params[:maxDuration]
+    @flights.reject! { |flight| flight[:travel_time] / 60.0 > params[:maxDuration].to_f }
+  end
+
+  if params[:minDepartureTime]
+    binding.pry
+    # @flights.reject! { |flight| flight[:minDeparture]}
+  end
+
+  @sort_criterion = params[:sort]
 
   erb :flights
 end

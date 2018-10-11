@@ -1,0 +1,16 @@
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="price">
+        <button type="submit" class="<%= highlight_class('price') %>">Price</button>
+      </form>
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="duration">
+        <button type="submit" class="<%= highlight_class('duration') %>">Duration</button>
+      </form>
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="takeoff">
+        <button type="sort_by_takeoff" class="<%= highlight_class('takeoff') %>">Departure Time</button>
+      </form>
+      <form action="/flights" method="get" class="inline">
+        <input type="hidden" name="sort" value="landing">
+        <button id="sort_by_landing" class="<%= highlight_class('landing') %>">Arrival Time</button>
+      </form>

@@ -70,7 +70,8 @@ button {
 }
 
 button.highlighted {
-  background-color: hsl(20, 100%, 65%);
+  /*background-color: hsl(20, 100%, 65%);*/
+  background-color: hsl(20, 100%, 70%);
 }
 
 input {

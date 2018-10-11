@@ -64,6 +64,43 @@ $(function() {
   $('select#arrival_city').change(function() {
     put_airports_in_input(this, '#arrival_airports');
   });
+
+  // $('button#sort_by_price').click(function(event) {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   $('input#sort').val('price');
+  //   this.form.submit();
+  // });
+
+  $('form#sort-form button.sort-criterion').click(function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    var criterion = this.id.replace('sort_by_', '');
+    $('input#sort').val(criterion);
+    this.form.submit();
+  });
+
+  $('.filter').keypress(function (event) {
+    // event.preventDefault();
+    // event.stopPropagation();
+    // this.val()
+    // this.form.submit();
+
+    if (event.keyCode == 13) {
+      event.preventDefault();
+      event.stopPropagation();
+      // console.log($('#sort').val());
+      // console.log(this.form);
+      // this.form.submit();
+    }
+  });
+
+  // $('form#sort-form').submit(function (event) {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  //   var sort = $('#sort').val();
+  //   var ok = confirm("Are you sure you want to submit? (sort = " + sort + ")");
+  // });
 });
 
 function date_for_southwest_query(year, month, day) {
